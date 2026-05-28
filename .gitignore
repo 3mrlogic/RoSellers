@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+.nyc_output/
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Assets
+assets/images/*
+!assets/images/.gitkeep
+assets/gifs/*
+!assets/gifs/.gitkeep
+assets/icons/*
+!assets/icons/.gitkeep
+
+# Config (keep structure)
+!config/*.json
+
+# Docs (keep structure)
+docs/*.md
+!docs/.gitkeep
+
+# Frontend (keep structure)
+!frontend/*.html
+!frontend/*.css
+!frontend/*.js
+!frontend/*.json
+!frontend/.gitkeep
+
+# Backend
+!backend/*.js
+!backend/**/*.js
+
+# Tests
+tests/
+test/
+
+# Temporary files
+tmp/
+temp/

@@ -1,0 +1,18 @@
+{
+  "promocodes": [
+    {
+      "code": "RO50",
+      "discountPercent": 50,
+      "maxUses": 100,
+      "uses": 0,
+      "isActive": true
+    },
+    {
+      "code": "FREE100",
+      "discountPercent": 100,
+      "maxUses": 10,
+      "uses": 0,
+      "isActive": true
+    }
+  ]
+}

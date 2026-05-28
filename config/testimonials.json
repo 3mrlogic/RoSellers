@@ -1,0 +1,58 @@
+{
+  "testimonials": [
+    {
+      "id": 1,
+      "name": "أحمد",
+      "role": "مطور روبلوكس",
+      "rating": 5,
+      "comment": "أفضل أنظمة روبلوكس استخدمتها! الدعم الفني ممتاز والمنتجات عالية الجودة. أنصح الجميع بتجربتهم.",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed",
+      "gradient": "from-primary to-secondary"
+    },
+    {
+      "id": 2,
+      "name": " علي",
+      "role": "صاحبة متجر روبلوكس",
+      "rating": 5,
+      "comment": "النظام المتجر الإلكتروني غطى كل احتياجاتي. سهل التثبيت والاستخدام، والواجهة رائعة!",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Sara",
+      "gradient": "from-secondary to-pink-500"
+    },
+    {
+      "id": 3,
+      "name": "خالد حسن",
+      "role": "مطور ألعاب",
+      "rating": 5,
+      "comment": "نظام الدردشة رائع! سهل التخصيص ويعمل بشكل ممتاز. فريق RoSellers محترف جداً.",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Khaled",
+      "gradient": "from-pink-500 to-red-500"
+    },
+    {
+      "id": 4,
+      "name": "منى إبراهيم",
+      "role": "مصممة واجهات",
+      "rating": 5,
+      "comment": "التصميم احترافي جداً والأداء ممتاز. أنصح بشدة بشراء منتجاتهم.",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Mona",
+      "gradient": "from-green-500 to-teal-500"
+    },
+    {
+      "id": 5,
+      "name": "يوسف أحمد",
+      "role": "مطور خلفي",
+      "rating": 4,
+      "comment": "الكود نظيف ومنظم. سهل الفهم والتخصيص. الدعم الفني سريع ومفيد.",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Youssef",
+      "gradient": "from-blue-500 to-cyan-500"
+    },
+    {
+      "id": 6,
+      "name": "ليلى محمود",
+      "role": "صاحبة سيرفر روبلوكس",
+      "rating": 5,
+      "comment": "نظام الإدارة غطى كل احتياجاتي. سهل الاستخدام والتعلم. شكراً RoSellers!",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Laila",
+      "gradient": "from-yellow-500 to-orange-500"
+    }
+  ]
+}

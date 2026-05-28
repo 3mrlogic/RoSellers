@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoSellers - أنظمة ومنتجات روبلوكس احترافية</title>
+    <meta name="description" content="أفضل منصة لبيع أنظمة ومنتجات روبلوكس متبرمجة ومصممة بالكامل مع GUI احترافي">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        cairo: ['Cairo', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif']
+                    },
+                    colors: {
+                        primary: '#7c6fea',
+                        secondary: '#a78bfa',
+                        accent: '#f472b6',
+                        success: '#34d399',
+                        dark: '#070b14',
+                        darker: '#030509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-cairo text-white" style="background-color:#030509">
+    <!-- Cinematic Preloader -->
+    <div id="preloader" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#030509] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
+        <div class="relative flex flex-col items-center gap-6">
+            <!-- Ambient Glow Behind Logo -->
+            <div class="absolute w-48 h-48 bg-primary/20 rounded-full blur-[80px] -z-10 animate-pulse"></div>
+            
+            <!-- Logo with Gradient -->
+            <h1 class="text-5xl font-black tracking-widest text-center select-none font-outfit" 
+                style="background: linear-gradient(135deg, #7c6fea, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: logoPulse 2s ease-in-out infinite;">
+                RoSellers
+            </h1>
+            
+            <!-- Sleek Minimalist Cinematic Progress Line -->
+            <div class="w-24 h-[3px] bg-white/5 rounded-full overflow-hidden relative">
+                <div class="absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-r from-primary via-secondary to-accent rounded-full animate-loader-slide"></div>
+            </div>
+            
+            <!-- Subtext -->
+            <span class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-semibold font-outfit select-none">Loading Experience</span>
+        </div>
+    </div>
+
+    <!-- Apple Custom Cursor -->
+    <div class="apple-cursor" id="appleCursor">
+        <div class="apple-cursor-inner"></div>
+    </div>
+
+    <!-- Aurora Background -->
+    <div class="aurora-bg" aria-hidden="true">
+        <div class="aurora-orb aurora-orb-1"></div>
+        <div class="aurora-orb aurora-orb-2"></div>
+        <div class="aurora-orb aurora-orb-3"></div>
+    </div>
+    <!-- Noise Texture -->
+    <div class="noise-overlay" aria-hidden="true"></div>
+
+    <!-- Scroll Progress Bar -->
+    <div id="progressBar" style="width:0%"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-500" id="mainNav" style="background:rgba(3,5,9,0.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.07)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 w-full gap-4">
+                <!-- Logo -->
+                <div class="flex items-center gap-2 flex-1 justify-start shrink-0">
+                    <span class="text-xl font-black tracking-tight" style="background:linear-gradient(135deg,#7c6fea,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">RoSellers</span>
+                </div>
+                
+                <!-- Center Nav Links -->
+                <div class="hidden md:flex items-center justify-center gap-7 shrink-0">
+                    <a href="#home" class="text-sm text-gray-400 hover:text-white transition-colors link-underline font-semibold">الرئيسية</a>
+                    <a href="#features" class="text-sm text-gray-400 hover:text-white transition-colors link-underline font-semibold">المميزات</a>
+                    <a href="#products" class="text-sm text-gray-400 hover:text-white transition-colors link-underline font-semibold">المنتجات</a>
+                    <a href="#pricing" class="text-sm text-gray-400 hover:text-white transition-colors link-underline font-semibold">الأسعار</a>
+                    <a href="#contact" class="text-sm text-gray-400 hover:text-white transition-colors link-underline font-semibold">تواصل معنا</a>
+                    <a href="admin.html" class="text-sm text-gray-400 hover:text-white transition-colors link-underline font-semibold">لوحة التحكم</a>
+                </div>
+                
+                <!-- Right: User Area -->
+                <div class="hidden md:flex items-center gap-3 flex-1 justify-end shrink-0">
+                    <div id="userProfileArea" class="flex items-center gap-3">
+                        <button onclick="openAuthModal('login')" id="loginNavBtn" class="apple-btn text-xs">تسجيل الدخول</button>
+                        <div id="userNavbarProfile" class="hidden items-center gap-2.5 px-3 py-1.5 rounded-full transition-all" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1)">
+                            <img id="userNavAvatar" src="" alt="Roblox Avatar" crossorigin="anonymous" onerror="this.onerror=null;this.src=`https://api.dicebear.com/7.x/initials/svg?seed=${document.getElementById('userNameNav')?.textContent||'?'}`" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,0.2)">
+                            <span id="userNameNav" class="text-xs font-extrabold" style="background:linear-gradient(135deg,#7c6fea,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text"></span>
+                        </div>
+                        <button onclick="logoutUser()" id="logoutNavBtn" class="hidden text-xs text-red-400 hover:text-red-300 font-bold transition-all">خروج</button>
+                    </div>
+                </div>
+                
+                <button class="md:hidden text-white p-1" id="mobileMenuBtn" aria-label="القائمة">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="md:hidden" id="mobileMenu" style="border-top:1px solid rgba(255,255,255,0.07)">
+            <div class="px-5 py-4 space-y-3 bg-darker">
+                <a href="#home" class="block text-sm text-gray-300 hover:text-white transition-colors py-1">الرئيسية</a>
+                <a href="#features" class="block text-sm text-gray-300 hover:text-white transition-colors py-1">المميزات</a>
+                <a href="#products" class="block text-sm text-gray-300 hover:text-white transition-colors py-1">المنتجات</a>
+                <a href="#pricing" class="block text-sm text-gray-300 hover:text-white transition-colors py-1">الأسعار</a>
+                <a href="#contact" class="block text-sm text-gray-300 hover:text-white transition-colors py-1">تواصل معنا</a>
+                <a href="admin.html" class="block text-sm text-gray-300 hover:text-white transition-colors py-1">لوحة التحكم</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
+        <!-- Particles Background -->
+        <canvas id="particles" class="absolute inset-0 w-full h-full"></canvas>
+        
+        <!-- Floating GIFs -->
+        <div class="absolute top-24 right-8 w-36 h-36 hidden lg:block gif-hero" style="animation-delay:0s">
+            <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMzk0Y2l5dzY4cnA5ZTNqYjR3ZjZjdWk5dTY3M2JncHJ5M3pocXlvdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3p52qe0zZMa3Yrs9UG/giphy.gif" alt="Roblox Character" class="w-full h-full object-cover">
+        </div>
+        <div class="absolute bottom-24 left-8 w-36 h-36 hidden lg:block gif-hero" style="animation-delay:-2.5s">
+            <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGg3Mmh6NHdmOGRqNmI2OTdtc3c5Mmtxbnoxemd2YW14dWJuNWR2eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wrzf9P70YWLJK/giphy.gif" alt="High Five" class="w-full h-full object-cover">
+        </div>
+        
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
+            <!-- Live Badge -->
+            <div class="flex justify-center mb-6">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    <span>منصة نشطة وآمنة 100%</span>
+                </div>
+            </div>
+
+            <h1 class="font-black mb-6 leading-none" style="font-size:clamp(3rem,9vw,7rem);letter-spacing:-0.03em">
+                <span class="gradient-text-animated">RoSellers</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-3" style="color:#cbd5e1">أنظمة ومنتجات روبلوكس احترافية</p>
+            <p class="text-base md:text-lg mb-10 max-w-xl mx-auto" style="color:#64748b;line-height:1.7">
+                نقدم لك أفضل الأنظمة المتبرمجة والمصممة بالكامل مع GUI احترافي لتحسين تجربتك في روبلوكس
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+                <a href="#products" class="apple-btn-solid btn-click-effect magnetic-btn px-10 py-4 text-base rounded-2xl">
+                    🚀 استكشف منتجاتنا
+                </a>
+                <a href="#contact" class="apple-btn btn-click-effect magnetic-btn px-10 py-4 text-base rounded-2xl">
+                    تواصل معنا
+                </a>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 stagger reveal">
+                <div class="glass-card rounded-2xl p-5">
+                    <div class="stat-number" id="counter1">0</div>
+                    <div class="text-xs mt-1" style="color:#64748b;font-weight:600">منتج متاح</div>
+                </div>
+                <div class="glass-card rounded-2xl p-5">
+                    <div class="stat-number" id="counter2">0</div>
+                    <div class="text-xs mt-1" style="color:#64748b;font-weight:600">عميل سعيد</div>
+                </div>
+                <div class="glass-card rounded-2xl p-5">
+                    <div class="stat-number" id="counter3">0</div>
+                    <div class="text-xs mt-1" style="color:#64748b;font-weight:600">مشروع مكتمل</div>
+                </div>
+                <div class="glass-card rounded-2xl p-5">
+                    <div class="stat-number" id="counter4">0</div>
+                    <div class="text-xs mt-1" style="color:#64748b;font-weight:600">سنة خبرة</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-28 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="section-heading reveal">
+                <div class="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full text-xs font-bold" style="background:rgba(124,111,234,0.1);border:1px solid rgba(124,111,234,0.25);color:#a78bfa">✨ مميزاتنا الحصرية</div>
+                <h2 class="font-black">لماذا تختار <span class="gradient-text-animated">RoSellers</span>؟</h2>
+                <p>نقدم لك أفضل الحلول البرمجية والتصميمية لمشاريعك في روبلوكس</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 stagger reveal">
+                <!-- Feature 1 -->
+                <div class="glass-card rounded-3xl p-7 tilt-card group">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 overflow-hidden feature-icon" style="background:rgba(124,111,234,0.15);border:1px solid rgba(124,111,234,0.2)">
+                        <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnAydTA5dWd6b3RneGJkdGpwMGZzam5zNzQ0aWhnMWtoNzRoZTRkaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/78XCFBGOlS6keY1Bil/giphy.gif" alt="Coding" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">برمجة احترافية</h3>
+                    <p class="text-sm leading-relaxed" style="color:#64748b">أنظمة متبرمجة بأحدث التقنيات وأفضل الممارسات البرمجية في عالم روبلوكس</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="glass-card rounded-3xl p-7 tilt-card group">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 overflow-hidden feature-icon" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.2)">
+                        <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdHZyZnJqYjUzMGc1dThoa3QybmNqdHV2YWtjaWk5MnhnZWFwc2txMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/t1HJXy5Q5NKA8/giphy.gif" alt="Design" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">تصميم عصري</h3>
+                    <p class="text-sm leading-relaxed" style="color:#64748b">واجهات مستخدم جذابة وسهلة الاستخدام مع GUI احترافي فائق الجودة</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="glass-card rounded-3xl p-7 tilt-card group">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 overflow-hidden feature-icon" style="background:rgba(244,114,182,0.15);border:1px solid rgba(244,114,182,0.2)">
+                        <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOWZpOWJsdjh5aTQ4cWM5ZWdhdjd3MXg0cmxsMmNtMzZtY3Zqd29oZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2bUpP71bbVnZ3x7lgQ/giphy.gif" alt="Speed" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">أداء عالي</h3>
+                    <p class="text-sm leading-relaxed" style="color:#64748b">أنظمة محسنة لأعلى أداء واستقرار تام في جميع الظروف</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="glass-card rounded-3xl p-7 tilt-card group">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 overflow-hidden feature-icon" style="background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.2)">
+                        <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2hsN2Uwbjh0b25uZHF5NzlhcGFhbzFiMnF5djhtbmVqbGZ6b2dlZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/gHPOb1fEVWu5GHL2tk/giphy.gif" alt="Secure" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">آمن وموثوق 🔒</h3>
+                    <p class="text-sm leading-relaxed" style="color:#64748b">حماية متقدمة متعددة الطبقات لبياناتك ومشاريعك</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="glass-card rounded-3xl p-7 tilt-card group">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 overflow-hidden feature-icon" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2)">
+                        <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWh3MXMzY2xscXJzdWxhMnNuM2RpZXZoa2xvMnpuY3B4N3dmZWVydyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PjocMfAvxO0EZPed6M/giphy.gif" alt="Support" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">دعم فني 24/7</h3>
+                    <p class="text-sm leading-relaxed" style="color:#64748b">فريق دعم محترف متاح على مدار الساعة لمساعدتك</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="glass-card rounded-3xl p-7 tilt-card group">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 overflow-hidden feature-icon" style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.2)">
+                        <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzl6amloMzYzMDFib2k1M28yc3M3dzlyMm01d3V5NXMwdWR2eXY0byZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/syCa5ird7wp0c/giphy.gif" alt="Updates" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">تحديثات مستمرة</h3>
+                    <p class="text-sm leading-relaxed" style="color:#64748b">تحديثات دورية مجانية لضمان أفضل تجربة دائماً</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-28 relative" style="background:rgba(7,11,20,0.7)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="section-heading reveal">
+                <div class="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full text-xs font-bold" style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);color:#a78bfa">🎮 منتجاتنا</div>
+                <h2 class="font-black">أنظمتنا <span class="gradient-text-animated">المميزة</span></h2>
+                <p>استكشف مجموعتنا المتنوعة من الأنظمة والمنتجات الاحترافية</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 stagger reveal" id="products-container">
+                <!-- Products loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-28 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="section-heading reveal">
+                <div class="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full text-xs font-bold" style="background:rgba(244,114,182,0.1);border:1px solid rgba(244,114,182,0.25);color:#f472b6">💬 تقييمات العملاء</div>
+                <h2 class="font-black">آراء <span class="gradient-text-animated">عملائنا</span></h2>
+                <p>ماذا يقول عملاؤنا عن خدماتنا الاحترافية</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6 stagger reveal" id="testimonials-container">
+                <!-- Testimonials loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-28 relative" style="background:rgba(7,11,20,0.7)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="section-heading reveal">
+                <div class="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full text-xs font-bold" style="background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.25);color:#34d399">💎 خطط الأسعار</div>
+                <h2 class="font-black">خطط <span class="gradient-text-animated">الأسعار</span></h2>
+                <p>اختر الخطة المناسبة لاحتياجاتك ومشاريعك</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto stagger reveal">
+                <!-- Basic Plan -->
+                <div class="glass-card rounded-3xl p-8 tilt-card">
+                    <div class="w-16 h-16 mx-auto mb-5 rounded-2xl overflow-hidden gif-pricing">
+                        <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTZ5c3JtNngwdnZtYXRqcnZwZmI5YzN1dnNrNnFvZGVzejkybmVocSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kxnAM6bLmxviwtmaT2/giphy.gif" alt="Basic" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold mb-1 text-center">الأساسية</h3>
+                    <p class="text-center mb-5 text-sm" style="color:#64748b">للمبتدئين</p>
+                    <div class="text-center mb-6">
+                        <span class="text-4xl font-black">$9.99</span>
+                        <span class="text-sm" style="color:#64748b">/شهرياً</span>
+                    </div>
+                    <ul class="space-y-3 mb-7 text-sm">
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> منتج واحد</li>
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> دعم فني أساسي</li>
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> تحديثات شهرية</li>
+                    </ul>
+                    <button class="w-full py-3 apple-btn font-bold rounded-2xl">اشترك الآن</button>
+                </div>
+
+                <!-- Pro Plan (Popular) -->
+                <div class="glass-card rounded-3xl p-8 tilt-card pricing-card-popular relative !overflow-visible">
+                    <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+                        <span class="px-4 py-1.5 text-xs font-bold text-white rounded-full" style="background:linear-gradient(135deg,#7c6fea,#a78bfa)">🔥 الأكثر شعبية</span>
+                    </div>
+                    <div class="w-16 h-16 mx-auto mb-5 rounded-2xl overflow-hidden gif-pricing">
+                        <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcW0wdGE4cDJ5eXhnZ2VneHVoenUwZmdpN3R5eG8wbmR2dHhleHRyNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/s2qXK8wAvkHTO/giphy.gif" alt="Pro" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold mb-1 text-center">الاحترافية</h3>
+                    <p class="text-center mb-5 text-sm" style="color:#64748b">للمحترفين</p>
+                    <div class="text-center mb-6">
+                        <span class="text-4xl font-black gradient-text">$29.99</span>
+                        <span class="text-sm" style="color:#64748b">/شهرياً</span>
+                    </div>
+                    <ul class="space-y-3 mb-7 text-sm">
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> 5 منتجات</li>
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> دعم فني متميز</li>
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> تحديثات أسبوعية</li>
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> ميزات حصرية</li>
+                    </ul>
+                    <button class="w-full py-3 apple-btn-solid font-bold rounded-2xl">اشترك الآن</button>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="glass-card rounded-3xl p-8 tilt-card">
+                    <div class="w-16 h-16 mx-auto mb-5 rounded-2xl overflow-hidden gif-pricing">
+                        <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjJ0YzFrN3Y3dDU3OTh4aXR6cDV6OXdwcDc2d2NmNXFhZTNweXVzdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TKLH1tKSy6GJTPxwwW/giphy.gif" alt="Enterprise" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold mb-1 text-center">المؤسسات</h3>
+                    <p class="text-center mb-5 text-sm" style="color:#64748b">للشركات الكبرى</p>
+                    <div class="text-center mb-6">
+                        <span class="text-4xl font-black">$99.99</span>
+                        <span class="text-sm" style="color:#64748b">/شهرياً</span>
+                    </div>
+                    <ul class="space-y-3 mb-7 text-sm">
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> منتجات غير محدودة</li>
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> دعم فني 24/7</li>
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> تحديثات يومية</li>
+                        <li class="flex items-center gap-2"><span style="color:#34d399">✓</span> تخصيص كامل</li>
+                    </ul>
+                    <button class="w-full py-3 apple-btn font-bold rounded-2xl">تواصل معنا</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-28 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="section-heading reveal">
+                <div class="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full text-xs font-bold" style="background:rgba(124,111,234,0.1);border:1px solid rgba(124,111,234,0.25);color:#a78bfa">❓ أسئلة شائعة</div>
+                <h2 class="font-black">الأسئلة <span class="gradient-text-animated">الشائعة</span></h2>
+                <p>إجابات على الأسئلة الأكثر شيوعاً</p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto space-y-3 reveal">
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <button class="w-full px-6 py-5 flex items-center justify-between faq-toggle" onclick="toggleFaq(this)">
+                        <span class="font-bold text-sm">كيف يمكنني شراء المنتجات؟</span>
+                        <svg class="w-5 h-5 faq-icon transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-content px-6">
+                        <p class="pb-5 text-sm" style="color:#64748b">يمكنك شراء المنتجات من خلال الضغط على زر "شراء الآن" بجانب كل منتج. سيتم توجيهك لإتمام الدفع عبر روبلوكس بشكل آمن.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <button class="w-full px-6 py-5 flex items-center justify-between faq-toggle" onclick="toggleFaq(this)">
+                        <span class="font-bold text-sm">هل تقدمون دعم فني؟</span>
+                        <svg class="w-5 h-5 faq-icon transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-content px-6">
+                        <p class="pb-5 text-sm" style="color:#64748b">نعم، نقدم دعم فني على مدار الساعة لمساعدتك في أي مشكلة. يمكنك التواصل معنا عبر Discord أو البريد الإلكتروني.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <button class="w-full px-6 py-5 flex items-center justify-between faq-toggle" onclick="toggleFaq(this)">
+                        <span class="font-bold text-sm">هل يمكنني استرداد أموالي؟</span>
+                        <svg class="w-5 h-5 faq-icon transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-content px-6">
+                        <p class="pb-5 text-sm" style="color:#64748b">نعم، نقدم سياسة استرداد الأموال خلال 7 أيام من الشراء إذا لم تكن راضياً عن المنتج.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <button class="w-full px-6 py-5 flex items-center justify-between faq-toggle" onclick="toggleFaq(this)">
+                        <span class="font-bold text-sm">هل المنتجات متوافقة مع جميع الأجهزة؟</span>
+                        <svg class="w-5 h-5 faq-icon transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-content px-6">
+                        <p class="pb-5 text-sm" style="color:#64748b">نعم، جميع منتجاتنا متوافقة مع PC، Mobile، Xbox، و PlayStation.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <button class="w-full px-6 py-5 flex items-center justify-between faq-toggle" onclick="toggleFaq(this)">
+                        <span class="font-bold text-sm">كم يستغرق التثبيت؟</span>
+                        <svg class="w-5 h-5 faq-icon transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-content px-6">
+                        <p class="pb-5 text-sm" style="color:#64748b">التثبيت عادةً يستغرق أقل من 5 دقائق مع الدليل المفصل المرفق مع كل منتج.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-28 relative" style="background:rgba(7,11,20,0.7)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">تواصل <span class="gradient-text-animated">معنا</span></h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">نحن هنا لمساعدتك في أي وقت</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <!-- 3 Contact Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 stagger reveal">
+                    <!-- Email Card -->
+                    <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center border border-white/5 hover:border-primary/20">
+                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold mb-1 text-sm">البريد الإلكتروني</h3>
+                        <p class="text-xs text-gray-400 contact-email">support@rosellers.com</p>
+                    </div>
+                    
+                    <!-- Discord Card -->
+                    <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center border border-white/5 hover:border-secondary/20">
+                        <div class="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold mb-1 text-sm">الدسكورد</h3>
+                        <p class="text-xs text-gray-400">discord.gg/rosellers</p>
+                    </div>
+                    
+                    <!-- Reply Time Card -->
+                    <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center border border-white/5 hover:border-pink-500/20">
+                        <div class="w-12 h-12 bg-pink-500/10 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold mb-1 text-sm">وقت الرد</h3>
+                        <p class="text-xs text-gray-400">خلال 24 ساعة</p>
+                    </div>
+                </div>
+                
+                <!-- Follow Us social media -->
+                <div class="text-center pt-6 border-t border-white/5 reveal">
+                    <h3 class="font-bold mb-4 text-sm text-gray-300">تابعنا على شبكات التواصل</h3>
+                    <div class="flex gap-4 justify-center">
+                        <a href="#" class="w-10 h-10 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 relative" style="border-top:1px solid rgba(255,255,255,0.06);background:rgba(3,5,9,0.95)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <span class="text-xl font-black" style="background:linear-gradient(135deg,#7c6fea,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">RoSellers</span>
+                    <p class="text-xs mt-1" style="color:#334155">أنظمة روبلوكس احترافية</p>
+                </div>
+                <div class="flex items-center gap-6 text-xs" style="color:#475569">
+                    <a href="#home" class="hover:text-white transition-colors">الرئيسية</a>
+                    <a href="#products" class="hover:text-white transition-colors">المنتجات</a>
+                    <a href="#contact" class="hover:text-white transition-colors">تواصل معنا</a>
+                    <a href="admin.html" class="hover:text-white transition-colors">لوحة التحكم</a>
+                </div>
+                <p class="text-xs" style="color:#334155">© 2025 RoSellers. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Authentication Modal -->
+    <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+        <div class="glass-card rounded-3xl p-8 max-w-md w-full relative border border-white/15 shadow-2xl mx-4 transform scale-95 transition-transform duration-300">
+            <button onclick="closeAuthModal()" class="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <div class="flex justify-center border-b border-white/10 pb-4 mb-6">
+                <button onclick="toggleAuthTab('signup')" id="tabBtnSignup" class="px-6 py-2 font-bold text-lg text-white border-b-2 border-primary transition-all">إنشاء حساب</button>
+                <button onclick="toggleAuthTab('login')" id="tabBtnLogin" class="px-6 py-2 font-bold text-lg text-gray-400 hover:text-white transition-all">تسجيل دخول</button>
+            </div>
+            
+            <!-- Signup Form -->
+            <form id="signupForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">اسمك في روبلوكس (Roblox Name)</label>
+                    <input type="text" id="authRobloxUser" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-primary transition-colors text-white" placeholder="أدخل اسم الحساب بدقة" required>
+                    
+                    <!-- Live Roblox Profile View -->
+                    <div id="robloxProfilePreview" class="mt-2.5 flex items-center gap-3 bg-white/5 p-2.5 rounded-xl border border-white/10 hidden transition-all duration-300">
+                        <img id="robloxAvatarImg" src="" alt="Roblox Avatar" class="w-12 h-12 rounded-full border border-white/20 object-cover bg-black/40">
+                        <div class="text-right">
+                            <p id="robloxDispName" class="text-xs font-bold text-white">-</p>
+                            <p id="robloxUserText" class="text-[10px] text-gray-400">@username</p>
+                        </div>
+                        <span class="mr-auto text-[10px] bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-0.5 rounded-full font-bold">حساب موثق ✅</span>
+                    </div>
+                    <p id="robloxErrorText" class="text-xs text-red-400 mt-1.5 hidden">الحساب غير موجود في روبلوكس ❌</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">الاسم الثنائي في الحقيقة</label>
+                    <input type="text" id="authRealName" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-primary transition-colors text-white" placeholder="أدخل اسمك الأول والعائلة" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">البريد الإلكتروني للتواصل</label>
+                    <input type="email" id="authEmail" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-primary transition-colors text-white" placeholder="yourname@gmail.com" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">كلمة المرور (Password)</label>
+                    <input type="password" id="authPassword" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-primary transition-colors text-white" placeholder="أدخل كلمة مرور قوية" required>
+                    
+                    <!-- Password Strength Meter -->
+                    <div class="mt-2.5 space-y-1.5">
+                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div id="passwordStrengthBar" class="h-full w-0 bg-red-500 transition-all duration-300"></div>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-gray-400">قوة كلمة المرور:</span>
+                            <span id="passwordStrengthText" class="font-bold text-red-500">ضعيفة</span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-primary to-secondary rounded-xl font-bold hover:opacity-90 transition-all apple-btn-solid mt-2">إنشاء الحساب وبدء الشراء</button>
+            </form>
+            
+            <!-- Login Form -->
+            <form id="loginFormClient" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">البريد الإلكتروني</label>
+                    <input type="email" id="loginEmail" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-primary transition-colors text-white" placeholder="أدخل بريدك الإلكتروني" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">كلمة المرور</label>
+                    <input type="password" id="loginPassword" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-primary transition-colors text-white" placeholder="أدخل كلمة المرور" required>
+                </div>
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-primary to-secondary rounded-xl font-bold hover:opacity-90 transition-all apple-btn-solid mt-2">تسجيل الدخول</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+        <div class="glass-card rounded-3xl p-8 max-w-md w-full relative border border-white/15 shadow-2xl mx-4 text-center transform scale-95 transition-transform duration-300">
+            <button onclick="closeCheckoutModal()" class="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <h2 class="text-2xl font-bold mb-2">إتمام عملية الشراء</h2>
+            <div id="checkoutProductInfo" class="mb-4 p-4 bg-white/5 rounded-2xl border border-white/10 inline-block w-full">
+                <h3 id="checkoutProductName" class="text-xl font-bold text-white mb-1">-</h3>
+                <p id="checkoutProductPrice" class="text-lg text-primary font-bold">- R$</p>
+            </div>
+            
+            <!-- Promo Code Section -->
+            <div class="mb-4 bg-white/5 p-3 rounded-2xl border border-white/10 flex gap-2">
+                <input type="text" id="checkoutPromoInput" class="flex-1 px-3 py-1.5 bg-black/40 border border-white/10 rounded-xl text-sm text-center text-white" placeholder="كود الخصم (Promo Code)">
+                <button onclick="applyPromoCode()" class="px-4 py-1.5 bg-gradient-to-r from-primary to-secondary rounded-xl text-xs font-bold transition-all apple-btn">تطبيق</button>
+            </div>
+            <p id="promoStatusMsg" class="text-xs font-semibold mb-4 hidden"></p>
+            
+            <!-- Timer Indicator -->
+            <div class="relative w-36 h-36 mx-auto mb-6 flex items-center justify-center">
+                <!-- Outer pulsing glowing circle -->
+                <div class="absolute inset-0 rounded-full border-2 border-secondary/20 animate-ping"></div>
+                <div class="absolute inset-2 rounded-full border border-white/10 bg-white/5 flex flex-col items-center justify-center">
+                    <span class="text-xs text-gray-400 mb-1">الوقت المتبقي</span>
+                    <span id="checkoutTimer" class="text-3xl font-extrabold tracking-wider bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">10:00</span>
+                </div>
+            </div>
+            
+            <!-- Dynamic Roblox Instructions -->
+            <div class="text-right space-y-4 mb-6 text-sm bg-white/5 p-5 rounded-2xl border border-white/10">
+                <p class="text-gray-300">1. انقر على الزر أدناه للتوجه إلى صفحة الجيم باس الخاص بالمنتج:</p>
+                <a id="checkoutGamePassBtn" href="javascript:void(0)" target="_blank" class="block w-full py-2.5 bg-secondary hover:bg-secondary/80 rounded-xl text-center text-white font-bold transition-all shadow-md">شراء الجيم باس من روبلوكس ↗</a>
+                
+                <p class="text-gray-300">2. يرجى إتمام الشراء باستخدام حساب روبلوكس المسجل لدينا:</p>
+                <div class="bg-black/40 p-3 rounded-lg border border-white/10 text-center font-extrabold text-primary text-base">
+                     <span id="checkoutRobloxName">-</span>
+                </div>
+            </div>
+            
+            <!-- Verification Loader -->
+            <div class="flex flex-col items-center justify-center gap-2.5 text-sm">
+                <div class="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                <span id="checkoutStatusText" class="text-gray-400 font-medium">جاري التحقق التلقائي من امتلاك الجيم باس في روبلوكس...</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

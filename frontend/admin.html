@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoSellers - لوحة التحكم الفاخرة</title>
+    <meta name="description" content="إدارة منتجات متجر روبلوكس RoSellers">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        dark: '#0f172a',
+                        darker: '#020617',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(25px) saturate(220%);
+            -webkit-backdrop-filter: blur(25px) saturate(220%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.50);
+        }
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.2s;
+        }
+        input, textarea, select {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            color: #fff !important;
+            transition: all 0.3s;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+            outline: none !important;
+        }
+    </style>
+</head>
+<body class="font-cairo bg-black text-white selection:bg-white/10 selection:text-white min-h-screen">
+    <!-- Cinematic Preloader -->
+    <div id="preloader" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#030509] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
+        <div class="relative flex flex-col items-center gap-6">
+            <!-- Ambient Glow Behind Logo -->
+            <div class="absolute w-48 h-48 bg-primary/20 rounded-full blur-[80px] -z-10 animate-pulse"></div>
+            
+            <!-- Logo with Gradient -->
+            <h1 class="text-5xl font-black tracking-widest text-center select-none font-outfit" 
+                style="background: linear-gradient(135deg, #7c6fea, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: logoPulse 2s ease-in-out infinite;">
+                RoSellers
+            </h1>
+            
+            <!-- Sleek Minimalist Cinematic Progress Line -->
+            <div class="w-24 h-[3px] bg-white/5 rounded-full overflow-hidden relative">
+                <div class="absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-r from-primary via-secondary to-accent rounded-full animate-loader-slide"></div>
+            </div>
+            
+            <!-- Subtext -->
+            <span class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-semibold font-outfit select-none">Loading Experience</span>
+        </div>
+    </div>
+
+    <!-- Apple Custom Cursor -->
+    <div class="apple-cursor" id="appleCursor">
+        <div class="apple-cursor-inner"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-500" style="background:rgba(3,5,9,0.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.07)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 w-full gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl font-black tracking-tight" style="background:linear-gradient(135deg,#7c6fea,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">RoSellers</span>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 font-bold text-gray-400">لوحة التحكم الفاخرة</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="apple-btn text-xs">← العودة للمتجر</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="pt-24 px-4 max-w-7xl mx-auto pb-12">
+        
+        <!-- ============================================ -->
+        <!--   1. LOGIN SCREEN                            -->
+        <!-- ============================================ -->
+        <div id="loginScreen" class="flex flex-col items-center justify-center pt-20">
+            <div class="glass-card rounded-3xl p-8 max-w-md w-full border border-white/10 text-center space-y-6">
+                <div class="w-16 h-16 bg-primary/20 rounded-2xl mx-auto flex items-center justify-center">
+                    <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                
+                <div class="space-y-1.5">
+                    <h1 class="text-2xl font-bold tracking-tight">بوابة المسؤول (Admin Access)</h1>
+                    <p class="text-xs text-gray-400">الرجاء إدخال رمز الأمان للوصول لإعدادات المنتجات.</p>
+                </div>
+
+                <form id="loginForm" class="space-y-4">
+                    <input type="password" id="passwordInput" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-center font-bold tracking-widest focus:outline-none text-white input-focus-effect" placeholder="رمز الأمان" required>
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-primary to-secondary rounded-xl font-bold hover:opacity-90 transition-all apple-btn-solid">تسجيل دخول للمسؤول</button>
+                </form>
+
+                <p id="loginError" class="text-sm text-red-400 font-semibold hidden">رمز الأمان خاطئ! الرجاء المحاولة مجدداً. ❌</p>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!--   2. MAIN ADMIN PANEL DASHBOARD              -->
+        <!-- ============================================ -->
+        <div id="adminPanel" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Right Sidebar Menu -->
+            <aside class="lg:col-span-1 space-y-6">
+                <div class="glass-card rounded-3xl p-6 border border-white/10 flex flex-col justify-between h-full min-h-[500px]">
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 border-b border-white/5 pb-4">
+                            <div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center font-black text-primary text-xl">R</div>
+                            <div>
+                                <h2 class="font-extrabold text-sm tracking-tight text-white">RoSellers Admin</h2>
+                                <span class="text-[10px] text-primary font-bold">بوابة التحكم والأنظمة</span>
+                            </div>
+                        </div>
+                        
+                        <nav class="space-y-2">
+                            <a href="javascript:void(0)" class="admin-sidebar-item active flex items-center gap-3 px-4 py-3 text-sm text-white font-bold border border-white/5">
+                                <span>📊</span> لوحة التحكم الرئيسية
+                            </a>
+                            <a href="index.html" class="admin-sidebar-item flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:text-white font-bold border border-transparent">
+                                <span>🛒</span> عرض المتجر الإلكتروني
+                            </a>
+                        </nav>
+                    </div>
+                    
+                    <button id="logoutBtn" class="w-full py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/25 rounded-2xl text-xs font-bold text-red-400 transition-all">
+                        👋 تسجيل الخروج الآمن
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Left Content Panel -->
+            <div class="lg:col-span-3 space-y-8">
+                <!-- Dashboard Header -->
+                <div class="glass-card rounded-3xl p-6 border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 class="text-2xl font-extrabold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">إدارة منتجات المتجر</h1>
+                        <p class="text-gray-400 text-xs mt-1">تعديل وإضافة أنظمة روبلوكس وربطها بالجيم باس والتحميلات التلقائية.</p>
+                    </div>
+                    <a href="index.html" class="apple-btn text-xs font-extrabold">عرض المتجر ↗</a>
+                </div>
+
+                <!-- Two Columns Grid: Form & List -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    
+                    <!-- Form Column -->
+                    <div class="xl:col-span-1 space-y-6">
+                        <div class="glass-card rounded-3xl p-6 border border-white/10 space-y-5">
+                            <h2 class="text-base font-bold border-b border-white/5 pb-2.5 flex items-center gap-2">
+                                <span class="text-primary">⚙️</span> بيانات النظام
+                            </h2>
+                            
+                            <form id="productForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1.5 font-semibold">اسم النظام/المنتج</label>
+                                    <input type="text" id="productName" class="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none input-focus-effect" placeholder="مثال: نظام متجر التبرعات" required>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1.5 font-semibold">السعر بالروبوكس</label>
+                                        <input type="number" id="productPrice" class="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none input-focus-effect" placeholder="123" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1.5 font-semibold">معرف الجيم باس</label>
+                                        <input type="number" id="productGamePassId" class="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none input-focus-effect" placeholder="1234567" required>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1.5 font-semibold">وصف المنتج البرمجي</label>
+                                    <textarea id="productDescription" rows="4" class="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm leading-relaxed text-white focus:outline-none input-focus-effect resize-none" placeholder="أدخل خصائص وتفاصيل النظام والميزات" required></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1.5 font-semibold">رابط فيديو التركيب (يوتيوب)</label>
+                                    <input type="url" id="productVideo" class="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none input-focus-effect" placeholder="https://www.youtube.com/watch?v=...">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1.5 font-semibold">رابط تحميل الملف السري والمشفر</label>
+                                    <input type="url" id="productDownloadUrl" class="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none input-focus-effect" placeholder="https://..." required>
+                                </div>
+                                
+                                <div class="flex gap-3 pt-2">
+                                    <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-primary to-secondary rounded-xl font-bold hover:opacity-90 transition-all text-sm apple-btn-solid">حفظ البيانات</button>
+                                    <button type="button" id="cancelEditBtn" class="hidden px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-gray-400 transition-all">إلغاء</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Products List Table Column -->
+                    <div class="xl:col-span-2 space-y-6">
+                        <div class="glass-card rounded-3xl p-6 border border-white/10 overflow-hidden">
+                            <h2 class="text-base font-bold border-b border-white/5 pb-2.5 mb-4 flex items-center gap-2">
+                                <span class="text-secondary">📋</span> الأنظمة المعروضة حالياً
+                            </h2>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-xs">
+                                    <thead>
+                                        <tr class="border-b border-white/5 text-gray-400">
+                                            <th class="py-3 px-4 font-bold">اسم المنتج</th>
+                                            <th class="py-3 px-4 font-bold">السعر</th>
+                                            <th class="py-3 px-4 font-bold">GamePass ID</th>
+                                            <th class="py-3 px-4 font-bold">الوصف</th>
+                                            <th class="py-3 px-4 font-bold">رابط فيديو التركيب</th>
+                                            <th class="py-3 px-4 font-bold">الملف المصدر</th>
+                                            <th class="py-3 px-4 font-bold text-center">الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productsTableBody">
+                                        <!-- Dynamic rows from JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Empty state -->
+                            <div id="noProducts" class="hidden py-16 text-center text-gray-400 space-y-3">
+                                <div class="text-4xl">🫙</div>
+                                <p class="font-bold text-sm">لا يوجد أي أنظمة مضافة حالياً.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            </div> <!-- End of inner grid -->
+        </div>
+
+    </main>
+
+    <script src="admin.js"></script>
+    <script>
+        // Custom Apple cursor tracker setup
+        const appleCursor = document.getElementById('appleCursor');
+        if (appleCursor) {
+            let mouseX = -100, mouseY = -100, cursorX = -100, cursorY = -100;
+            
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function tick() {
+                cursorX += (mouseX - cursorX) * 0.25;
+                cursorY += (mouseY - cursorY) * 0.25;
+                appleCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
+                requestAnimationFrame(tick);
+            }
+            tick();
+
+            document.querySelectorAll('a, button, input, textarea').forEach(el => {
+                el.addEventListener('mouseenter', () => appleCursor.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => appleCursor.classList.remove('hovering'));
+            });
+            window.addEventListener('mousedown', () => appleCursor.classList.add('clicking'));
+            window.addEventListener('mouseup', () => appleCursor.classList.remove('clicking'));
+        }
+    </script>
+</body>
+</html>

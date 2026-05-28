@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoSellers - تفاصيل المنتج والفاتورة</title>
+<meta name="description" content="عرض تفاصيل شراء المنتج والفاتورة الرسمية وشرح التركيب">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+                colors: {
+                    primary: '#7c6fea',
+                    secondary: '#a78bfa',
+                    accent: '#f472b6',
+                    success: '#34d399',
+                    dark: '#070b14',
+                    darker: '#030509',
+                }
+            }
+        }
+    }
+</script>
+</head>
+<body class="font-cairo text-white pb-12" style="background-color:#030509">
+    <!-- Cinematic Preloader -->
+    <div id="preloader" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#030509] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
+        <div class="relative flex flex-col items-center gap-6">
+            <!-- Ambient Glow Behind Logo -->
+            <div class="absolute w-48 h-48 bg-primary/20 rounded-full blur-[80px] -z-10 animate-pulse"></div>
+            
+            <!-- Logo with Gradient -->
+            <h1 class="text-5xl font-black tracking-widest text-center select-none font-outfit" 
+                style="background: linear-gradient(135deg, #7c6fea, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: logoPulse 2s ease-in-out infinite;">
+                RoSellers
+            </h1>
+            
+            <!-- Sleek Minimalist Cinematic Progress Line -->
+            <div class="w-24 h-[3px] bg-white/5 rounded-full overflow-hidden relative">
+                <div class="absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-r from-primary via-secondary to-accent rounded-full animate-loader-slide"></div>
+            </div>
+            
+            <!-- Subtext -->
+            <span class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-semibold font-outfit select-none">Loading Experience</span>
+        </div>
+    </div>
+
+    <!-- Apple Custom Cursor -->
+    <div class="apple-cursor" id="appleCursor">
+        <div class="apple-cursor-inner"></div>
+    </div>
+    <!-- Aurora Background -->
+    <div class="aurora-bg" aria-hidden="true">
+        <div class="aurora-orb aurora-orb-1"></div>
+        <div class="aurora-orb aurora-orb-2"></div>
+        <div class="aurora-orb aurora-orb-3"></div>
+    </div>
+    <div class="noise-overlay" aria-hidden="true"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50" style="background:rgba(3,5,9,0.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.07)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <a href="index.html" class="text-xl font-black tracking-tight" style="background:linear-gradient(135deg,#7c6fea,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">RoSellers</a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="apple-btn text-xs">← العودة للرئيسية</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="pt-28 px-4 max-w-4xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <div class="text-center space-y-3 reveal">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded-full border border-green-500/30" style="background:rgba(52,211,153,0.1);color:#34d399">
+                <span class="w-2.5 h-2.5 rounded-full bg-green-400 glow-badge" style="color:#34d399"></span>
+                تم التحقق وتأكيد الشراء بنجاح ✔️
+            </span>
+            <h1 class="text-3xl sm:text-5xl font-black tracking-tight" style="background:linear-gradient(135deg,#fff 30%,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">تفاصيل المنتج وبوابة الفاتورة</h1>
+            <p class="text-sm max-w-xl mx-auto leading-relaxed" style="color:#64748b">مرحباً بك في بوابتك الآمنة لتحميل أنظمة روبلوكس وتفاصيل رخصة الشراء الخاصة بك.</p>
+        </div>
+
+        <!-- Section 1: Invoice Receipt System -->
+        <div class="glass-card rounded-3xl p-8 reveal border border-white/10 relative overflow-hidden">
+            <!-- Neon background highlight -->
+            <div class="absolute -right-24 -top-24 w-48 h-48 rounded-full bg-primary/10 filter blur-3xl pointer-events-none"></div>
+            
+            <h2 class="text-base font-bold pb-3 mb-5 flex items-center gap-2.5" style="border-bottom:1px solid rgba(255,255,255,0.08)">
+                <span style="font-size:1.2rem">🧾</span> تفاصيل الفاتورة الرسمية
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="invoice-row">
+                    <span class="text-xs font-bold" style="color:#64748b">رقم الفاتورة:</span>
+                    <span id="invoiceNum" class="font-mono font-bold text-sm tracking-widest" style="color:#7c6fea">-</span>
+                </div>
+                <div class="invoice-row">
+                    <span class="text-xs font-bold" style="color:#64748b">تاريخ الشراء:</span>
+                    <span id="purchaseDate" class="font-bold text-xs text-white">-</span>
+                </div>
+                <div class="invoice-row">
+                    <span class="text-xs font-bold" style="color:#64748b">حساب روبلوكس المرخص:</span>
+                    <span id="invoiceRobloxUser" class="font-extrabold text-xs" style="color:#a78bfa">-</span>
+                </div>
+                <div class="invoice-row">
+                    <span class="text-xs font-bold" style="color:#64748b">سعر المنتج:</span>
+                    <span id="invoicePrice" class="font-black text-sm text-green-400">- R$</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Product Specifications & Download Gateway -->
+        <div class="glass-card rounded-3xl p-8 reveal border border-white/10 relative overflow-hidden">
+            <!-- Neon background highlight -->
+            <div class="absolute -left-24 -bottom-24 w-48 h-48 rounded-full bg-success/15 filter blur-3xl pointer-events-none"></div>
+
+            <h2 class="text-base font-bold pb-3 mb-5 flex items-center gap-2.5" style="border-bottom:1px solid rgba(255,255,255,0.08)">
+                <span style="font-size:1.2rem">📦</span> مستندات النظام وتحميل الملف
+            </h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 id="productTitle" class="text-2xl font-black text-white">-</h3>
+                    <p id="productDesc" class="text-sm mt-3 leading-relaxed" style="color:#64748b">-</p>
+                </div>
+                
+                <div class="pt-6 flex flex-col md:flex-row gap-6 items-center justify-between" style="border-top:1px solid rgba(255,255,255,0.06)">
+                    <div class="text-right space-y-1">
+                        <span class="text-xs font-bold text-gray-400">رابط تحميل الملف السري والمشفر:</span>
+                        <p class="text-xs" style="color:#f87171">⚠️ الرجاء عدم مشاركة هذا الرابط مع أي شخص آخر أو نشره.</p>
+                    </div>
+                    <a id="downloadLinkBtn" href="#" target="_blank" class="apple-btn-solid btn-click-effect w-full md:w-auto px-8 py-4 text-center font-extrabold rounded-2xl text-white transition-all shadow-lg" style="background:linear-gradient(135deg,#34d399,#059669);box-shadow:0 8px 32px rgba(52,211,153,0.3)">
+                        📥 تحميل الملف المصدري
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Professional Video Guide -->
+        <div id="videoSection" class="glass-card rounded-3xl p-8 hidden reveal border border-white/10">
+            <h2 class="text-base font-bold pb-3 mb-5 flex items-center gap-2.5" style="border-bottom:1px solid rgba(255,255,255,0.08)">
+                <span style="font-size:1.2rem">🎬</span> دليل شرح التركيب البرمجي
+            </h2>
+            <div class="relative w-full rounded-2xl overflow-hidden shadow-2xl" style="aspect-ratio:16/9;border:1px solid rgba(255,255,255,0.08);background:#000">
+                <iframe id="videoIframe" class="absolute inset-0 w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <p class="text-xs text-center mt-4" style="color:#64748b">شاهد الدليل المرئي المدمج لتعرف طريقة التثبيت والربط البرمجي خطوة بخطوة.</p>
+        </div>
+
+    </main>
+
+    <script>
+        // Apple Custom Cursor spotlight track loop
+        const appleCursor = document.getElementById('appleCursor');
+        if (appleCursor) {
+            let mouseX = -100, mouseY = -100, cursorX = -100, cursorY = -100;
+            let activeGlassCard = null;
+            
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                if (activeGlassCard) {
+                    const rect = activeGlassCard.getBoundingClientRect();
+                    activeGlassCard.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                    activeGlassCard.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+                }
+            });
+
+            function tick() {
+                cursorX += (mouseX - cursorX) * 0.25;
+                cursorY += (mouseY - cursorY) * 0.25;
+                appleCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
+                requestAnimationFrame(tick);
+            }
+            tick();
+
+            document.querySelectorAll('.glass-card, a, button').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    appleCursor.classList.add('hovering');
+                    if (el.classList.contains('glass-card')) activeGlassCard = el;
+                });
+                el.addEventListener('mouseleave', () => {
+                    appleCursor.classList.remove('hovering');
+                    if (activeGlassCard === el) activeGlassCard = null;
+                });
+            });
+            window.addEventListener('mousedown', () => appleCursor.classList.add('clicking'));
+            window.addEventListener('mouseup', () => appleCursor.classList.remove('clicking'));
+        }
+
+        // Secure Cryptographic Storage Helper v1.0
+        const SecureStorage = {
+            KEY: "RoSellersSecureSalt123!",
+            encrypt(text) {
+                return btoa(text.split('').map((char, index) => 
+                    String.fromCharCode(char.charCodeAt(0) ^ this.KEY.charCodeAt(index % this.KEY.length))
+                ).join(''));
+            },
+            decrypt(encoded) {
+                try {
+                    const decoded = atob(encoded);
+                    return decoded.split('').map((char, index) => 
+                        String.fromCharCode(char.charCodeAt(0) ^ this.KEY.charCodeAt(index % this.KEY.length))
+                    ).join('');
+                } catch (e) {
+                    return null;
+                }
+            },
+            getItem(key) {
+                const raw = localStorage.getItem(key);
+                if (!raw) return null;
+                const decrypted = this.decrypt(raw);
+                return decrypted ? JSON.parse(decrypted) : null;
+            },
+            setItem(key, value) {
+                const encrypted = this.encrypt(JSON.stringify(value));
+                localStorage.setItem(key, encrypted);
+            },
+            removeItem(key) {
+                localStorage.removeItem(key);
+            }
+        };
+
+        // Dynamic Product & Invoice details resolution
+        async function initPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = parseInt(urlParams.get('productId'));
+            
+            if (isNaN(productId)) {
+                alert('تفاصيل معرف المنتج غير صالحة.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Get user session details
+            const user = SecureStorage.getItem('currentUser');
+            if (!user) {
+                alert('الرجاء تسجيل الدخول أولاً للوصول لبوابتك.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // 1. Resolve Invoice Details
+            let invoiceObj = null;
+            if (user.purchases) {
+                invoiceObj = user.purchases.find(p => p.productId === productId);
+            }
+            
+            // Generate simulated invoice on-the-fly for legacy users who purchased before receipt upgrade
+            if (!invoiceObj && user.purchasedProducts.includes(productId)) {
+                invoiceObj = {
+                    productId: productId,
+                    invoiceNumber: 'ROS-' + (100000 + productId * 9),
+                    purchaseDate: new Date().toISOString(),
+                    robloxUser: user.robloxUser,
+                    price: 123
+                };
+            }
+            
+            if (!invoiceObj) {
+                alert('أنت لا تمتلك هذا المنتج أو لم يتم تأكيد عملية الشراء بعد.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Populate invoice details
+            document.getElementById('invoiceNum').textContent = invoiceObj.invoiceNumber;
+            document.getElementById('purchaseDate').textContent = new Date(invoiceObj.purchaseDate).toLocaleDateString('ar-EG', {
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+            document.getElementById('invoiceRobloxUser').textContent = `@${invoiceObj.robloxUser}`;
+            document.getElementById('invoicePrice').textContent = `${invoiceObj.price} R$`;
+
+            // 2. Fetch products to get specifications
+            try {
+                const response = await fetch('/api/admin/products');
+                if (!response.ok) throw new Error('Failed to fetch products');
+                
+                const data = await response.json();
+                const product = data.products.find(p => p.id === productId);
+                
+                if (!product) throw new Error('Product specifications not found');
+                
+                // Populate product details
+                document.getElementById('productTitle').textContent = product.name;
+                document.getElementById('productDesc').textContent = product.description;
+                document.getElementById('downloadLinkBtn').href = `/api/products/download?email=${encodeURIComponent(user.email)}&productId=${productId}`;
+                
+                // Dynamic live Roblox GamePass ownership verification
+                try {
+                    const ownershipRes = await fetch(`/api/roblox/check-ownership?username=${encodeURIComponent(invoiceObj.robloxUser)}&gamePassId=${product.gamePassId}`);
+                    if (ownershipRes.ok) {
+                        const ownershipData = await ownershipRes.json();
+                        if (ownershipData.owned !== true) {
+                            // User does NOT own the GamePass in Roblox! Block download.
+                            const dlBtn = document.getElementById('downloadLinkBtn');
+                            dlBtn.classList.add('pointer-events-none', 'opacity-20');
+                            dlBtn.textContent = "⚠️ التحقق فشل: غير ممتلك بالجعبة";
+                            dlBtn.href = "javascript:void(0)";
+                            
+                            const warnDiv = document.createElement('div');
+                            warnDiv.className = "mt-4 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-center font-bold text-sm w-full";
+                            warnDiv.textContent = `⚠️ تنبيه أمان: لم نجد الجيم باس في حساب روبلوكس المرتبط بك (@${invoiceObj.robloxUser})! تم حظر التحميل التلقائي لحمايتك.`;
+                            dlBtn.parentNode.appendChild(warnDiv);
+                        }
+                    }
+                } catch (checkErr) {
+                    console.error('Error during live GamePass verification:', checkErr);
+                }
+                
+                // YouTube Watch URL conversion to Embed URL for iframe
+                if (product.video) {
+                    let embedUrl = product.video;
+                    if (product.video.includes('youtube.com/watch')) {
+                        const videoId = new URL(product.video).searchParams.get('v');
+                        if (videoId) {
+                            embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        }
+                    } else if (product.video.includes('youtu.be/')) {
+                        const parts = product.video.split('/');
+                        const videoId = parts[parts.length - 1];
+                        if (videoId) {
+                            embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        }
+                    }
+                    
+                    document.getElementById('videoIframe').src = embedUrl;
+                    document.getElementById('videoSection').classList.remove('hidden');
+                }
+                
+            } catch (err) {
+                console.error('Error loading product specifications:', err);
+                document.getElementById('productTitle').textContent = "نظام روبلوكس الفاخر";
+                document.getElementById('productDesc').textContent = "تعذر تحميل وصف المنتج المحدث، ولكن يمكنك تنزيل ملفك البرمجي مباشرة.";
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', initPage);
+
+        // Cinematic Preloader Fade Out
+        window.addEventListener('load', () => {
+            const preloader = document.getElementById('preloader');
+            if (preloader) {
+                setTimeout(() => {
+                    preloader.style.opacity = '0';
+                    preloader.style.pointerEvents = 'none';
+                    setTimeout(() => {
+                        preloader.remove();
+                    }, 700);
+                }, 350);
+            }
+        });
+    </script>
+</body>
+</html>

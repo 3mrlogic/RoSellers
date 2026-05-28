@@ -1,0 +1,32 @@
+{
+  "site": {
+    "name": "RoSellers",
+    "description": "منصة بيع أنظمة روبلوكس المتبرمجة والمصممة",
+    "url": "https://rosellers.com"
+  },
+  "contact": {
+    "email": "support@rosellers.com",
+    "discord": "discord.gg/rosellers",
+    "twitter": "@rosellers",
+    "youtube": "RoSellers"
+  },
+  "social": {
+    "discord": "https://discord.gg/rosellers",
+    "twitter": "https://twitter.com/rosellers",
+    "youtube": "https://youtube.com/@rosellers",
+    "instagram": "https://instagram.com/rosellers"
+  },
+  "features": {
+    "particles": true,
+    "glassmorphism": true,
+    "gradientText": true,
+    "scrollProgress": true,
+    "darkMode": true
+  },
+  "colors": {
+    "primary": "#6366f1",
+    "secondary": "#8b5cf6",
+    "dark": "#0f172a",
+    "darker": "#020617"
+  }
+}
