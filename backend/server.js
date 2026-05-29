@@ -144,49 +144,6 @@ function decryptData(text) {
     }
 }
 
-// One-time self-healing auto-encryption for existing users in users.json
-(function encryptExistingUsersFile() {
-    try {
-        const filePath = path.join(__dirname, '../config/users.json');
-        if (fs.existsSync(filePath)) {
-            const rawData = fs.readFileSync(filePath, 'utf8').trim();
-            if (rawData.length > 0) {
-                const parsed = JSON.parse(rawData);
-                const users = parsed.users || [];
-                let changed = false;
-                
-                const updatedUsers = users.map(user => {
-                    let userChanged = false;
-                    let email = user.email;
-                    let password = user.password;
-                    
-                    if (email && !email.includes(':')) {
-                        email = encryptData(email);
-                        userChanged = true;
-                    }
-                    if (password && !password.includes(':')) {
-                        password = encryptData(password);
-                        userChanged = true;
-                    }
-                    
-                    if (userChanged) {
-                        changed = true;
-                        return { ...user, email, password };
-                    }
-                    return user;
-                });
-                
-                if (changed) {
-                    console.log('🔒 Plain-text user emails and passwords detected in users.json. Encrypting now...');
-                    fs.writeFileSync(filePath, JSON.stringify({ users: updatedUsers }, null, 2), 'utf8');
-                    console.log('✅ users.json sensitive fields have been securely encrypted!');
-                }
-            }
-        }
-    } catch (err) {
-        console.error('Failed to auto-encrypt users.json:', err.message);
-    }
-})();
 
 // Admin login protection tracking
 const loginAttemptsMap = new Map();
