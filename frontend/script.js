@@ -1093,8 +1093,8 @@ if (signupForm) {
             const robloxId = checkData.data[0].id || null;
             const robloxAvatar = checkData.data[0].avatarUrl || null;
             
-            // 2. Proceed with database registration
-            const response = await fetch('/api/users/register', {
+            // 2. Proceed with database registration request
+            const response = await fetch('/api/users/register-request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1105,7 +1105,99 @@ if (signupForm) {
             const resData = await response.json();
             
             if (!response.ok) {
-                alert(resData.message || 'فشل إنشاء الحساب.');
+                alert(resData.message || 'فشل إرسال رمز التحقق.');
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+                return;
+            }
+            
+            // Success! Store temp registration state locally to use in verify step
+            window.pendingRegData = { robloxUser, robloxId, realName, email, password, robloxAvatar };
+            
+            // Switch forms
+            signupForm.classList.add('hidden');
+            const otpForm = document.getElementById('otpForm');
+            if (otpForm) otpForm.classList.remove('hidden');
+            
+            // Hide tabs temporarily
+            const tabBtnSignup = document.getElementById('tabBtnSignup');
+            const tabBtnLogin = document.getElementById('tabBtnLogin');
+            if (tabBtnSignup) tabBtnSignup.style.display = 'none';
+            if (tabBtnLogin) tabBtnLogin.style.display = 'none';
+            
+            alert('تم إرسال رمز التحقق المكون من 4 أرقام لبريدك الإلكتروني! 📨');
+            
+            submitBtn.textContent = originalBtnText;
+            submitBtn.disabled = false;
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert('حدث خطأ أثناء التحقق وإنشاء الحساب. يرجى المحاولة مجدداً.');
+            submitBtn.textContent = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    });
+}
+
+// Cancel OTP Verification
+window.cancelOtpVerification = function() {
+    const signupForm = document.getElementById('signupForm');
+    const otpForm = document.getElementById('otpForm');
+    const tabBtnSignup = document.getElementById('tabBtnSignup');
+    const tabBtnLogin = document.getElementById('tabBtnLogin');
+    
+    if (signupForm && otpForm) {
+        otpForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        if (tabBtnSignup) tabBtnSignup.style.display = 'block';
+        if (tabBtnLogin) tabBtnLogin.style.display = 'block';
+    }
+};
+
+// OTP Verification Form Submit
+const otpForm = document.getElementById('otpForm');
+if (otpForm) {
+    otpForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const otpInput = document.getElementById('otpInput').value.trim();
+        if (otpInput.length !== 4) {
+            alert('يرجى إدخال رمز التحقق المكون من 4 أرقام.');
+            return;
+        }
+        
+        const submitBtn = otpForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.textContent = 'جاري تأكيد الرمز...';
+        submitBtn.disabled = true;
+        
+        try {
+            const tempReg = window.pendingRegData;
+            if (!tempReg) {
+                alert('حدث خطأ في جلسة التسجيل، يرجى المحاولة مجدداً.');
+                location.reload();
+                return;
+            }
+            
+            const response = await fetch('/api/users/register-verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: tempReg.email,
+                    code: otpInput,
+                    robloxUser: tempReg.robloxUser,
+                    robloxId: tempReg.robloxId,
+                    realName: tempReg.realName,
+                    password: tempReg.password,
+                    robloxAvatar: tempReg.robloxAvatar
+                })
+            });
+            
+            const resData = await response.json();
+            
+            if (!response.ok) {
+                alert(resData.message || 'رمز التحقق غير صحيح ❌');
                 submitBtn.textContent = originalBtnText;
                 submitBtn.disabled = false;
                 return;
@@ -1114,9 +1206,17 @@ if (signupForm) {
             // Save current session locally
             SecureStorage.setItem('currentUser', resData.user);
             
-            alert('تم إنشاء الحساب بنجاح! مرحباً بك.');
+            alert('تم التحقق وتفعيل الحساب بنجاح! مرحباً بك 🎉');
             closeAuthModal();
             updateNavProfile();
+            
+            // Reset modal state
+            otpForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+            const tabBtnSignup = document.getElementById('tabBtnSignup');
+            const tabBtnLogin = document.getElementById('tabBtnLogin');
+            if (tabBtnSignup) tabBtnSignup.style.display = 'block';
+            if (tabBtnLogin) tabBtnLogin.style.display = 'block';
             
             // Check if there was a pending product purchase, direct them immediately!
             if (currentPendingProduct) {
@@ -1125,9 +1225,9 @@ if (signupForm) {
             } else {
                 location.reload();
             }
-        } catch (error) {
-            console.error('Signup error:', error);
-            alert('حدث خطأ أثناء التحقق وإنشاء الحساب. يرجى المحاولة مجدداً.');
+        } catch (err) {
+            console.error('OTP verify error:', err);
+            alert('حدث خطأ في السيرفر أثناء التحقق.');
         } finally {
             submitBtn.textContent = originalBtnText;
             submitBtn.disabled = false;

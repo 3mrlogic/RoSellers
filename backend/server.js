@@ -5,6 +5,21 @@ const fs = require('fs');
 const crypto = require('crypto');
 require('dotenv').config();
 
+const nodemailer = require('nodemailer');
+
+// Initialize Gmail SMTP Transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.GMAIL_USER || 'amr1tarek032@gmail.com',
+        pass: process.env.GMAIL_APP_PASSWORD || ''
+    }
+});
+
+// In-Memory store for verification OTP codes
+const pendingRegistrations = new Map();
+
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -585,8 +600,8 @@ app.get('/api/ping', (req, res) => {
     res.json({ success: true });
 });
 
-// Register user endpoint
-app.post('/api/users/register', (req, res) => {
+// Register request endpoint (Generates OTP and sends Email)
+app.post('/api/users/register-request', async (req, res) => {
     const { robloxUser, robloxId, realName, email, password, robloxAvatar } = req.body;
     
     if (!robloxUser || !realName || !email || !password) {
@@ -605,24 +620,106 @@ app.post('/api/users/register', (req, res) => {
         return res.status(400).json({ success: false, message: 'اسم حساب روبلوكس هذا مسجل بالفعل ومربوط بمستخدم آخر ⚠️' });
     }
     
-    // Build proxy avatar URL (avoids CORS from browser hitting Roblox CDN directly)
+    // Generate 4-digit verification code
+    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    
+    // Store in pending registrations with 10-minute expiry
+    pendingRegistrations.set(email.toLowerCase(), {
+        robloxUser,
+        robloxId,
+        realName,
+        email: email.toLowerCase(),
+        password,
+        robloxAvatar,
+        code: otpCode,
+        expires: Date.now() + 10 * 60 * 1000
+    });
+    
+    // Log code to server console as fail-safe backup
+    console.log(`\n======================================================`);
+    console.log(`[RoSellers OTP Security] Code for ${email} is: ${otpCode}`);
+    console.log(`======================================================\n`);
+    
+    // Send OTP via Gmail
+    const mailOptions = {
+        from: `"RoSellers Security" <${process.env.GMAIL_USER || 'amr1tarek032@gmail.com'}>`,
+        to: email,
+        subject: `رمز تحقق حسابك في RoSellers - ${otpCode}`,
+        html: `
+        <div style="background-color: #030509; color: #e2e8f0; font-family: 'Cairo', sans-serif; padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); max-width: 500px; margin: 0 auto; direction: rtl; text-align: center;">
+            <h1 style="background: linear-gradient(135deg, #7c6fea, #a78bfa, #f472b6); -webkit-background-clip: text; color: #7c6fea; font-size: 32px; font-weight: 900; text-align: center; margin-bottom: 20px; font-family: 'Outfit', sans-serif;">RoSellers</h1>
+            <p style="font-size: 16px; line-height: 1.6; text-align: center; margin-bottom: 10px;">أهلاً بك <b>${realName}</b> في منصة RoSellers!</p>
+            <p style="font-size: 14px; text-align: center; color: #94a3b8; margin-bottom: 25px;">لتفعيل حسابك والمتابعة، يرجى استخدام رمز التحقق التالي:</p>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin: 20px 0; text-align: center; font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #a78bfa; text-shadow: 0 0 12px rgba(167, 139, 250, 0.4); display: inline-block; min-width: 150px; text-align: center;">${otpCode}</div>
+            <p style="font-size: 12px; text-align: center; color: #64748b; margin-top: 30px;">هذا الرمز صالح لمدة 10 دقائق فقط. إذا لم تكن أنت من طلب هذا الرمز، يرجى تجاهل هذا البريد.</p>
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 25px 0;">
+            <p style="font-size: 10px; text-align: center; color: #475569;">بوابة الأمان والتحقق التلقائي لـ RoSellers</p>
+        </div>
+        `
+    };
+    
+    try {
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح! 📨' });
+    } catch (err) {
+        console.error('Error sending email, fallback log active:', err.message);
+        // Respond success anyway because OTP is logged in console and user can continue!
+        res.json({ 
+            success: true, 
+            message: 'تم إرسال الرمز (سجل لوحة التحكم نشط). 📨',
+            fallbackActive: true 
+        });
+    }
+});
+
+// Register verify endpoint (Verifies OTP and saves user to DB)
+app.post('/api/users/register-verify', (req, res) => {
+    const { email, code, robloxUser, robloxId, realName, password, robloxAvatar } = req.body;
+    
+    if (!email || !code) {
+        return res.status(400).json({ success: false, message: 'Email and OTP code are required' });
+    }
+    
+    const record = pendingRegistrations.get(email.toLowerCase());
+    const now = Date.now();
+    
+    if (!record) {
+        return res.status(400).json({ success: false, message: 'انتهت صلاحية جلسة التسجيل، يرجى المحاولة مجدداً.' });
+    }
+    
+    if (now > record.expires) {
+        pendingRegistrations.delete(email.toLowerCase());
+        return res.status(400).json({ success: false, message: 'انتهت صلاحية رمز التحقق (صالح لـ 10 دقائق فقط).' });
+    }
+    
+    if (record.code !== code.trim()) {
+        return res.status(400).json({ success: false, message: 'رمز التحقق غير صحيح ❌' });
+    }
+    
+    // Code is correct! Proceed to register user in permanent database
+    const users = readUsers();
+    
+    // Build proxy avatar URL
     const avatarUrl = robloxId 
         ? `/api/roblox/avatar-proxy?userId=${robloxId}`
         : (robloxAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${robloxUser}`);
-    
+        
     const newUser = {
         id: users.length > 0 ? Math.max(...users.map(u => u.id || 0)) + 1 : 1,
         robloxUser,
         robloxId: robloxId || null,
         realName,
         email: email.toLowerCase(),
-        password: hashPassword(password), // SECURE HASHING
+        password: hashPassword(password),
         robloxAvatar: avatarUrl,
         purchasedProducts: []
     };
     
     users.push(newUser);
     if (writeUsers(users)) {
+        // Clear pending registration
+        pendingRegistrations.delete(email.toLowerCase());
+        
         // Send dynamic Discord notification embed
         sendDiscordNotification({
             title: "👤 تسجيل عضو جديد بنجاح! 🎉",
@@ -638,7 +735,7 @@ app.post('/api/users/register', (req, res) => {
         
         res.json({ success: true, user: newUser });
     } else {
-        res.status(500).json({ success: false, message: 'Failed to write to database' });
+        res.status(500).json({ success: false, message: 'فشل حفظ الحساب في قاعدة البيانات.' });
     }
 });
 
