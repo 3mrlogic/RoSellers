@@ -74,12 +74,13 @@ async function initDatabase() {
 
 
 const app = express();
+app.set('trust proxy', true); // Trust reverse proxy (Alwaysdata/Cloudflare) to get real user IPs!
 const PORT = process.env.PORT || 3000;
 
 // Simple In-Memory Rate Limiter to protect endpoints from DDoS/abuse
 const rateLimitMap = new Map();
 const LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 100; // 100 requests per minute per IP
+const MAX_REQUESTS = 200; // 200 requests per minute per IP
 
 function rateLimiter(req, res, next) {
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
