@@ -642,20 +642,23 @@ app.post('/api/users/register-request', async (req, res) => {
         console.log(`[RoSellers OTP Security] Code for ${email} is: ${otpCode}`);
         console.log(`======================================================\n`);
         
-        // Send OTP via Gmail
         const mailOptions = {
             from: `"RoSellers Security" <${process.env.GMAIL_USER || 'amr1tarek032@gmail.com'}>`,
             to: email,
             subject: `رمز تحقق حسابك في RoSellers - ${otpCode}`,
             html: `
-            <div style="background-color: #030509; color: #e2e8f0; font-family: 'Cairo', sans-serif; padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); max-width: 500px; margin: 0 auto; direction: rtl; text-align: center;">
-                <h1 style="background: linear-gradient(135deg, #7c6fea, #a78bfa, #f472b6); -webkit-background-clip: text; color: #7c6fea; font-size: 32px; font-weight: 900; text-align: center; margin-bottom: 20px; font-family: 'Outfit', sans-serif;">RoSellers</h1>
-                <p style="font-size: 16px; line-height: 1.6; text-align: center; margin-bottom: 10px;">أهلاً بك <b>${realName}</b> في منصة RoSellers!</p>
-                <p style="font-size: 14px; text-align: center; color: #94a3b8; margin-bottom: 25px;">لتفعيل حسابك والمتابعة، يرجى استخدام رمز التحقق التالي:</p>
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin: 20px 0; text-align: center; font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #a78bfa; text-shadow: 0 0 12px rgba(167, 139, 250, 0.4); display: inline-block; min-width: 150px; text-align: center;">${otpCode}</div>
-                <p style="font-size: 12px; text-align: center; color: #64748b; margin-top: 30px;">هذا الرمز صالح لمدة 10 دقائق فقط. إذا لم تكن أنت من طلب هذا الرمز، يرجى تجاهل هذا البريد.</p>
-                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 25px 0;">
-                <p style="font-size: 10px; text-align: center; color: #475569;">بوابة الأمان والتحقق التلقائي لـ RoSellers</p>
+            <div style="background-color: #09090b; color: #e4e4e7; font-family: 'Cairo', 'Outfit', sans-serif; padding: 45px 35px; border-radius: 16px; border: 1px solid #27272a; max-width: 480px; margin: 0 auto; direction: rtl; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <div style="font-size: 28px; font-weight: 900; letter-spacing: 1px; color: #a78bfa; margin-bottom: 25px; text-shadow: 0 0 10px rgba(167, 139, 250, 0.2);">RoSellers</div>
+                
+                <p style="font-size: 15px; margin: 0 0 8px 0; color: #f4f4f5; font-weight: 700;">أهلاً بك يا ${realName} في منصتك المفضلة</p>
+                <p style="font-size: 13px; margin: 0 0 25px 0; color: #a1a1aa; line-height: 1.5;">لتأكيد ملكية حسابك والمتابعة، يرجى استخدام رمز التحقق أدناه:</p>
+                
+                <div style="background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 18px 40px; margin: 20px 0; font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #a78bfa; display: inline-block; text-shadow: 0 0 8px rgba(167,139,250,0.3); min-width: 140px; text-align: center;">${otpCode}</div>
+                
+                <p style="font-size: 11px; color: #71717a; margin: 25px 0 0 0; line-height: 1.6;">هذا الرمز صالح لمدة 10 دقائق فقط لدواعي الأمان.<br>إذا لم تقم بطلب هذا الرمز، يمكنك تجاهل هذا البريد بأمان.</p>
+                
+                <hr style="border: 0; border-top: 1px solid #27272a; margin: 30px 0 20px 0;">
+                <p style="font-size: 9px; color: #52525b; margin: 0;">بوابة الأمان والتحقق التلقائي الآمن لـ RoSellers</p>
             </div>
             `
         };
