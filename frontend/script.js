@@ -1544,6 +1544,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Show navbar immediately with whatever is cached (avoids empty nav flash)
     updateNavProfile();
     
+    // Toggle Mobile Menu
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+    
     // Sync session from server dynamically to bypass stale localStorage caches!
     const localUser = SecureStorage.getItem('currentUser');
     if (localUser && localUser.email) {
