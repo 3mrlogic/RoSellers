@@ -1546,3 +1546,36 @@ window.addEventListener('load', () => {
     }
 });
 
+// Server Connection Health Check Monitoring
+function initConnectionMonitor() {
+    const badge = document.getElementById('serverStatusBadge');
+    const dot = document.getElementById('serverStatusDot');
+    const text = document.getElementById('serverStatusText');
+    
+    if (!badge || !dot || !text) return;
+    
+    async function checkHealth() {
+        try {
+            const res = await fetch('/api/ping', { cache: 'no-store' });
+            if (res.ok) {
+                // Connected state
+                badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
+                dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]";
+                text.textContent = "متصل بالسيرفر";
+            } else {
+                throw new Error('Not OK');
+            }
+        } catch (e) {
+            // Disconnected state
+            badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 bg-red-500/10 border border-red-500/20 text-red-400";
+            dot.className = "w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shadow-[0_0_8px_#f87171]";
+            text.textContent = "انقطع الاتصال ⚠️";
+        }
+    }
+    
+    // Initial check and set interval
+    checkHealth();
+    setInterval(checkHealth, 8000);
+}
+document.addEventListener('DOMContentLoaded', initConnectionMonitor);
+

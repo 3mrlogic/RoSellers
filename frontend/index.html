@@ -76,8 +76,13 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 w-full gap-4">
                 <!-- Logo -->
-                <div class="flex items-center gap-2 flex-1 justify-start shrink-0">
+                <div class="flex items-center gap-3 flex-1 justify-start shrink-0">
                     <span class="text-xl font-black tracking-tight" style="background:linear-gradient(135deg,#7c6fea,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">RoSellers</span>
+                    <!-- Server Status Badge -->
+                    <div id="serverStatusBadge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" id="serverStatusDot"></span>
+                        <span id="serverStatusText">متصل بالسيرفر</span>
+                    </div>
                 </div>
                 
                 <!-- Center Nav Links -->

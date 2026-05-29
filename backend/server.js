@@ -580,6 +580,11 @@ function writeUsers(users) {
     }
 }
 
+// Server Ping Health Check
+app.get('/api/ping', (req, res) => {
+    res.json({ success: true });
+});
+
 // Register user endpoint
 app.post('/api/users/register', (req, res) => {
     const { robloxUser, robloxId, realName, email, password, robloxAvatar } = req.body;
@@ -590,9 +595,14 @@ app.post('/api/users/register', (req, res) => {
     
     const users = readUsers();
     
-    // Check if user already exists
+    // Check if email already exists
     if (users.some(u => u.email === email.toLowerCase())) {
-        return res.status(400).json({ success: false, message: 'البريد الإلكتروني مسجل بالفعل' });
+        return res.status(400).json({ success: false, message: 'البريد الإلكتروني مسجل بالفعل ⚠️' });
+    }
+    
+    // Check if Roblox username already exists in database
+    if (users.some(u => u.robloxUser.toLowerCase() === robloxUser.toLowerCase())) {
+        return res.status(400).json({ success: false, message: 'اسم حساب روبلوكس هذا مسجل بالفعل ومربوط بمستخدم آخر ⚠️' });
     }
     
     // Build proxy avatar URL (avoids CORS from browser hitting Roblox CDN directly)
