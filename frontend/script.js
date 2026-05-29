@@ -1287,6 +1287,12 @@ function updateNavProfile() {
     const userNavAvatar = document.getElementById('userNavAvatar');
     const logoutNavBtn = document.getElementById('logoutNavBtn');
     
+    const mobileLoginBtn = document.getElementById('mobileLoginNavBtn');
+    const mobileUserNameNav = document.getElementById('mobileUserNameNav');
+    const mobileUserNavbarProfile = document.getElementById('mobileUserNavbarProfile');
+    const mobileUserNavAvatar = document.getElementById('mobileUserNavAvatar');
+    const mobileLogoutNavBtn = document.getElementById('mobileLogoutNavBtn');
+    
     if (user) {
         if (loginBtn) loginBtn.classList.add('hidden');
         if (userNavbarProfile) {
@@ -1317,6 +1323,29 @@ function updateNavProfile() {
             userNavAvatar.style.objectFit = 'cover';
         }
         if (logoutNavBtn) logoutNavBtn.classList.remove('hidden');
+        
+        // Mobile updates
+        if (mobileLoginBtn) mobileLoginBtn.classList.add('hidden');
+        if (mobileUserNavbarProfile) {
+            mobileUserNavbarProfile.classList.remove('hidden');
+            mobileUserNavbarProfile.classList.add('flex');
+        }
+        if (mobileUserNameNav) {
+            mobileUserNameNav.textContent = user.robloxUser;
+        }
+        if (mobileUserNavAvatar) {
+            let avatarSrc = user.robloxAvatar;
+            if (avatarSrc && avatarSrc.includes('tr.rbxcdn.com')) {
+                const proxyId = user.robloxId || '';
+                avatarSrc = `/api/roblox/avatar-proxy?userId=${proxyId}&t=${Date.now()}`;
+            } else if (!avatarSrc && user.robloxId) {
+                avatarSrc = `/api/roblox/avatar-proxy?userId=${user.robloxId}`;
+            } else if (!avatarSrc) {
+                avatarSrc = `https://api.dicebear.com/7.x/initials/svg?seed=${user.robloxUser}`;
+            }
+            mobileUserNavAvatar.src = avatarSrc;
+        }
+        if (mobileLogoutNavBtn) mobileLogoutNavBtn.classList.remove('hidden');
     } else {
         if (loginBtn) loginBtn.classList.remove('hidden');
         if (userNavbarProfile) {
@@ -1324,6 +1353,14 @@ function updateNavProfile() {
             userNavbarProfile.classList.add('hidden');
         }
         if (logoutNavBtn) logoutNavBtn.classList.add('hidden');
+        
+        // Mobile updates
+        if (mobileLoginBtn) mobileLoginBtn.classList.remove('hidden');
+        if (mobileUserNavbarProfile) {
+            mobileUserNavbarProfile.classList.remove('flex');
+            mobileUserNavbarProfile.classList.add('hidden');
+        }
+        if (mobileLogoutNavBtn) mobileLogoutNavBtn.classList.add('hidden');
     }
 }
 
