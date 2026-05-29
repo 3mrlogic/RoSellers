@@ -7,7 +7,7 @@ require('dotenv').config();
 
 const nodemailer = require('nodemailer');
 
-// Initialize Gmail SMTP Transporter
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -16,12 +16,12 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// In-Memory store for verification OTP codes
+
 const pendingRegistrations = new Map();
 
 const mysql = require('mysql2/promise');
 
-// Initialize MySQL/MariaDB Connection Pool
+
 const dbPool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
@@ -33,12 +33,12 @@ const dbPool = mysql.createPool({
     queueLimit: 0
 });
 
-// Database Table Initialization Helper
+
 async function initDatabase() {
     try {
         console.log('Connecting and initializing MySQL database...');
         
-        // 1. Create users table
+        
         await dbPool.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -53,7 +53,7 @@ async function initDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `);
         
-        // 2. Create products table
+        
         await dbPool.query(`
             CREATE TABLE IF NOT EXISTS products (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -74,13 +74,13 @@ async function initDatabase() {
 
 
 const app = express();
-app.set('trust proxy', true); // Trust reverse proxy (Alwaysdata/Cloudflare) to get real user IPs!
+app.set('trust proxy', true); 
 const PORT = process.env.PORT || 3000;
 
-// Simple In-Memory Rate Limiter to protect endpoints from DDoS/abuse
+
 const rateLimitMap = new Map();
-const LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 200; // 200 requests per minute per IP
+const LIMIT_WINDOW = 60 * 1000; 
+const MAX_REQUESTS = 200; 
 
 function rateLimiter(req, res, next) {
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -102,12 +102,12 @@ function rateLimiter(req, res, next) {
     next();
 }
 
-// Secure Password Hashing helper (Zero-dependency SHA-256 + Salt!)
+
 function hashPassword(password) {
     return crypto.createHmac('sha256', 'RoSellersSecureSalt123!').update(password).digest('hex');
 }
 
-// AES-256-CBC Encryption & Decryption Helper functions for products-admin.json
+
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'RoSellersSecureKey32BytesForAES!';
 const IV_LENGTH = 16;
 
@@ -127,7 +127,7 @@ function encryptData(text) {
 function decryptData(text) {
     try {
         const trimmed = text.trim();
-        // If it starts with { or [, it is plain text
+        
         if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
             return text;
         }
@@ -146,12 +146,12 @@ function decryptData(text) {
 }
 
 
-// Admin login protection tracking
+
 const loginAttemptsMap = new Map();
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOGIN_BAN_TIME = 15 * 60 * 1000; // 15 minutes
+const LOGIN_BAN_TIME = 15 * 60 * 1000; 
 
-// Reusable Helper to Send Discord Webhook notifications (Async & Fail-safe!)
+
 async function sendDiscordNotification(embedData) {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl || webhookUrl.includes('your_webhook_id') || webhookUrl.trim().length === 0) {
@@ -174,13 +174,13 @@ async function sendDiscordNotification(embedData) {
     }
 }
 
-// Middleware
+
 app.use(rateLimiter);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Set Basic Security Headers to prevent Clickjacking/XSS
+
 app.use((req, res, next) => {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -188,10 +188,10 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve static files from frontend
+
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// API Routes
+
 app.get('/api/testimonials', (req, res) => {
     try {
         const filePath = path.join(__dirname, '../config/testimonials.json');
@@ -221,13 +221,13 @@ app.get('/api/settings', (req, res) => {
     }
 });
 
-// Admin Login Endpoint (Server-side validation)
+
 app.post('/api/admin/login', async (req, res) => {
     const { password } = req.body;
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const now = Date.now();
     
-    // Check if locked out
+    
     if (loginAttemptsMap.has(ip)) {
         const record = loginAttemptsMap.get(ip);
         if (record.attempts >= MAX_LOGIN_ATTEMPTS && now - record.lastAttempt < LOGIN_BAN_TIME) {
@@ -248,17 +248,17 @@ app.post('/api/admin/login', async (req, res) => {
     const inputHash = hashPassword(password);
     
     if (inputHash === expectedHash) {
-        // Reset attempts on success
+        
         loginAttemptsMap.delete(ip);
         
-        // Generate secure dynamic session token
+        
         const token = hashPassword(adminPassword + new Date().toDateString());
         
-        // Send Discord audit webhook for successful login
+        
         await sendDiscordNotification({
             title: "🔐 تسجيل دخول ناجح للوحة التحكم",
             description: `تم المصادقة وتسجيل الدخول بنجاح إلى لوحة تحكم RoSellers.`,
-            color: 3066993, // Green
+            color: 3066993, 
             fields: [
                 { name: "العنوان الرقمي (IP)", value: `\`${ip}\``, inline: true },
                 { name: "توقيت الدخول", value: `<t:${Math.floor(Date.now() / 1000)}:f>`, inline: true }
@@ -268,7 +268,7 @@ app.post('/api/admin/login', async (req, res) => {
         
         res.json({ success: true, token });
     } else {
-        // Increment attempts on failure
+        
         let attempts = 1;
         if (loginAttemptsMap.has(ip)) {
             const record = loginAttemptsMap.get(ip);
@@ -278,11 +278,11 @@ app.post('/api/admin/login', async (req, res) => {
         }
         loginAttemptsMap.set(ip, { attempts, lastAttempt: now });
         
-        // Send alert on failed login to Discord
+        
         await sendDiscordNotification({
             title: "⚠️ محاولة اختراق / دخول فاشلة للوحة التحكم!",
             description: `تم اكتشاف محاولة دخول غير مصرح بها للوحة التحكم بكلمة مرور خاطئة.`,
-            color: 15158332, // Red
+            color: 15158332, 
             fields: [
                 { name: "العنوان الرقمي (IP)", value: `\`${ip}\``, inline: true },
                 { name: "عدد المحاولات الفاشلة", value: `\`${attempts} / ${MAX_LOGIN_ATTEMPTS}\``, inline: true },
@@ -295,7 +295,7 @@ app.post('/api/admin/login', async (req, res) => {
     }
 });
 
-// Admin Panel API Routes
+
 app.get('/api/admin/products', async (req, res) => {
     try {
         const [rows] = await dbPool.query('SELECT * FROM products');
@@ -320,10 +320,10 @@ app.post('/api/admin/products', async (req, res) => {
         connection = await dbPool.getConnection();
         await connection.beginTransaction();
         
-        // Truncate products table
+        
         await connection.query('TRUNCATE TABLE products');
         
-        // Insert new products
+        
         if (products && products.length > 0) {
             const insertQuery = `
                 INSERT INTO products (id, name, price, gamePassId, description, video, downloadUrl)
@@ -352,7 +352,7 @@ app.post('/api/admin/products', async (req, res) => {
     }
 });
 
-// Roblox User Lookup Proxy API
+
 app.get('/api/roblox/user-check', async (req, res) => {
     const { username } = req.query;
     if (!username) {
@@ -372,7 +372,7 @@ app.get('/api/roblox/user-check', async (req, res) => {
             })
         });
         
-        // Fallback to RosProxy
+        
         if (!robloxResponse.ok) {
             robloxResponse = await fetch("https://users.rosproxy.com/v1/usernames/users", {
                 method: "POST",
@@ -387,7 +387,7 @@ app.get('/api/roblox/user-check', async (req, res) => {
             });
         }
         
-        // Final fallback to direct Roblox
+        
         if (!robloxResponse.ok) {
             robloxResponse = await fetch("https://users.roblox.com/v1/usernames/users", {
                 method: "POST",
@@ -414,7 +414,7 @@ app.get('/api/roblox/user-check', async (req, res) => {
         const robloxUser = data.data[0];
         const userId = robloxUser.id;
         
-        // Fetch avatar headshot from Roblox API on the server (Bypasses CORS entirely!)
+        
         let directAvatarUrl = null;
         try {
             const thumbResponse = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=true`);
@@ -428,12 +428,12 @@ app.get('/api/roblox/user-check', async (req, res) => {
             console.error('Error fetching Roblox thumbnail:', thumbErr.message);
         }
         
-        // Use our own server-side proxy URL to avoid browser CORS issues with tr.rbxcdn.com
+        
         const avatarUrl = directAvatarUrl 
             ? `/api/roblox/avatar-proxy?userId=${userId}`
             : `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150&format=png`;
         
-        // Attach resolved proxy URL
+        
         robloxUser.avatarUrl = avatarUrl;
         
         res.json({ data: [robloxUser] });
@@ -443,7 +443,7 @@ app.get('/api/roblox/user-check', async (req, res) => {
     }
 });
 
-// Avatar Image Proxy — fetches Roblox headshot on server side to avoid browser CORS blocks
+
 app.get('/api/roblox/avatar-proxy', async (req, res) => {
     const { userId } = req.query;
     if (!userId) return res.status(400).send('userId required');
@@ -465,7 +465,7 @@ app.get('/api/roblox/avatar-proxy', async (req, res) => {
 
         if (!imgRes.ok) throw new Error('Failed to fetch image');
 
-        // Use arrayBuffer — works correctly with Node 18+ native fetch (no .pipe())
+        
         const buffer = await imgRes.arrayBuffer();
         const contentType = imgRes.headers.get('content-type') || 'image/png';
 
@@ -475,16 +475,16 @@ app.get('/api/roblox/avatar-proxy', async (req, res) => {
         res.send(Buffer.from(buffer));
     } catch (err) {
         console.error('Avatar proxy error:', err.message);
-        // Redirect to official Roblox headshot image as fallback
+        
         res.redirect(`https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150&format=png`);
     }
 });
 
-// Reusable Helper to Check GamePass Ownership dynamically (Real Roblox API & RoProxy!)
+
 async function checkGamePassOwnership(username, gamePassId) {
     if (!username || !gamePassId) return false;
     try {
-        // Step 1: Resolve Roblox User ID
+        
         const userRes = await fetch("https://users.roblox.com/v1/usernames/users", {
             method: "POST",
             headers: {
@@ -503,7 +503,7 @@ async function checkGamePassOwnership(username, gamePassId) {
 
         const userId = userData.data[0].id;
 
-        // Step 2: Query Roblox Inventory for GamePass
+        
         const proxyUrls = [
             `https://inventory.rosproxy.com/v1/users/${userId}/items/GamePass/${gamePassId}`,
             `https://inventory.roblox.com/v1/users/${userId}/items/GamePass/${gamePassId}`
@@ -524,7 +524,7 @@ async function checkGamePassOwnership(username, gamePassId) {
                     return false;
                 }
             } catch (err) {
-                // Continue to next fallback URL
+                
             }
         }
         return false;
@@ -534,7 +534,7 @@ async function checkGamePassOwnership(username, gamePassId) {
     }
 }
 
-// Roblox GamePass Ownership Check API
+
 app.get('/api/roblox/check-ownership', async (req, res) => {
     const { username, gamePassId } = req.query;
     if (!username || !gamePassId) {
@@ -544,7 +544,7 @@ app.get('/api/roblox/check-ownership', async (req, res) => {
     res.json({ owned });
 });
 
-// Secure server-side redirect/download proxy endpoint
+
 app.get('/api/products/download', async (req, res) => {
     const { email, productId } = req.query;
     if (!email || !productId) {
@@ -577,13 +577,13 @@ app.get('/api/products/download', async (req, res) => {
         
         const product = pRows[0];
         
-        // Double check ownership dynamically in Roblox before sending the redirect!
+        
         const isRealOwner = await checkGamePassOwnership(user.robloxUser, product.gamePassId);
         if (!isRealOwner) {
             return res.status(403).send('⚠️ حظر حماية: حساب روبلوكس الخاص بك لا يمتلك الجيم باس المطلوبة حالياً.');
         }
         
-        // Securely redirect to the hidden raw download link!
+        
         res.redirect(product.downloadUrl);
     } catch (err) {
         console.error('Secure download proxy error:', err.message);
@@ -591,7 +591,7 @@ app.get('/api/products/download', async (req, res) => {
     }
 });
 
-// Server Ping Health Check
+
 app.get('/api/ping', async (req, res) => {
     try {
         await dbPool.query('SELECT 1');
@@ -602,7 +602,7 @@ app.get('/api/ping', async (req, res) => {
     }
 });
 
-// Register request endpoint (Generates OTP and sends Email)
+
 app.post('/api/users/register-request', async (req, res) => {
     const { robloxUser, robloxId, realName, email, password, robloxAvatar } = req.body;
     
@@ -611,22 +611,22 @@ app.post('/api/users/register-request', async (req, res) => {
     }
     
     try {
-        // Check if email already exists
+        
         const [emailExists] = await dbPool.query('SELECT 1 FROM users WHERE LOWER(email) = ?', [email.toLowerCase()]);
         if (emailExists.length > 0) {
             return res.status(400).json({ success: false, message: 'البريد الإلكتروني مسجل بالفعل ⚠️' });
         }
         
-        // Check if Roblox username already exists in database
+        
         const [robloxExists] = await dbPool.query('SELECT 1 FROM users WHERE LOWER(robloxUser) = ?', [robloxUser.toLowerCase()]);
         if (robloxExists.length > 0) {
             return res.status(400).json({ success: false, message: 'اسم حساب روبلوكس هذا مسجل بالفعل ومربوط بمستخدم آخر ⚠️' });
         }
         
-        // Generate 4-digit verification code
+        
         const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
         
-        // Store in pending registrations with 10-minute expiry
+        
         pendingRegistrations.set(email.toLowerCase(), {
             robloxUser,
             robloxId,
@@ -638,7 +638,7 @@ app.post('/api/users/register-request', async (req, res) => {
             expires: Date.now() + 10 * 60 * 1000
         });
         
-        // Log code to server console as fail-safe backup
+        
         console.log(`\n======================================================`);
         console.log(`[RoSellers OTP Security] Code for ${email} is: ${otpCode}`);
         console.log(`======================================================\n`);
@@ -669,7 +669,7 @@ app.post('/api/users/register-request', async (req, res) => {
             res.json({ success: true, message: 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح! 📨' });
         } catch (err) {
             console.error('Error sending email, fallback log active:', err.message);
-            // Respond success anyway because OTP is logged in console and user can continue!
+            
             res.json({ 
                 success: true, 
                 message: 'تم إرسال الرمز (سجل لوحة التحكم نشط). 📨',
@@ -682,7 +682,7 @@ app.post('/api/users/register-request', async (req, res) => {
     }
 });
 
-// Register verify endpoint (Verifies OTP and saves user to DB)
+
 app.post('/api/users/register-verify', async (req, res) => {
     const { email, code, robloxUser, robloxId, realName, password, robloxAvatar } = req.body;
     
@@ -707,7 +707,7 @@ app.post('/api/users/register-verify', async (req, res) => {
     }
     
     try {
-        // Build proxy avatar URL
+        
         const avatarUrl = robloxId 
             ? `/api/roblox/avatar-proxy?userId=${robloxId}`
             : (robloxAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${robloxUser}`);
@@ -738,13 +738,13 @@ app.post('/api/users/register-verify', async (req, res) => {
             purchasedProducts: []
         };
         
-        // Clear pending registration
+        
         pendingRegistrations.delete(email.toLowerCase());
         
-        // Send dynamic Discord notification embed
+        
         sendDiscordNotification({
             title: "👤 تسجيل عضو جديد بنجاح! 🎉",
-            color: 65280, // Green
+            color: 65280, 
             fields: [
                 { name: "حساب روبلوكس المربوط", value: `[${robloxUser}](https://www.roblox.com/users/profile?username=${encodeURIComponent(robloxUser)})`, inline: true },
                 { name: "الاسم الثنائي الحقيقي", value: realName, inline: true },
@@ -761,7 +761,7 @@ app.post('/api/users/register-verify', async (req, res) => {
     }
 });
 
-// Login user endpoint
+
 app.post('/api/users/login', async (req, res) => {
     const { email, password } = req.body;
     
@@ -778,20 +778,20 @@ app.post('/api/users/login', async (req, res) => {
         const user = rows[0];
         const hashedPassword = hashPassword(password);
         
-        // Support plain text fallback (for legacy accounts) and hash validation
+        
         const isValid = user.password === password || user.password === hashedPassword;
         
         if (!isValid) {
             return res.status(400).json({ success: false, message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
         }
         
-        // Auto-upgrade plain text password to secure hash in DB
+        
         if (user.password === password) {
             await dbPool.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, user.id]);
             user.password = hashedPassword;
         }
         
-        // Ensure purchasedProducts and purchases are returned parsed as array/object
+        
         if (typeof user.purchasedProducts === 'string') {
             user.purchasedProducts = JSON.parse(user.purchasedProducts);
         }
@@ -809,7 +809,7 @@ app.post('/api/users/login', async (req, res) => {
     }
 });
 
-// Sync purchased products list to persistent DB
+
 app.post('/api/users/sync-purchases', async (req, res) => {
     const { email, productId } = req.body;
     if (!email || !productId) {
@@ -841,7 +841,7 @@ app.post('/api/users/sync-purchases', async (req, res) => {
         
         const alreadyHasDetails = purchases.some(p => p.productId === productId);
         if (!alreadyHasDetails) {
-            // Find product name and details from products table
+            
             let price = 0;
             let productName = "نظام روبلوكس";
             try {
@@ -864,10 +864,10 @@ app.post('/api/users/sync-purchases', async (req, res) => {
                 price: price
             });
             
-            // Send dynamic Discord Webhook notification embed
+            
             sendDiscordNotification({
                 title: "💰 إتمام عملية شراء ناجحة بنجاح! 🎉",
-                color: 8321504, // Purple
+                color: 8321504, 
                 fields: [
                     { name: "المنتج المشترى", value: productName, inline: true },
                     { name: "المبلغ المدفوع", value: `${price} R$`, inline: true },
@@ -894,7 +894,7 @@ app.post('/api/users/sync-purchases', async (req, res) => {
     }
 });
 
-// Sync session to get fresh user details (Bypasses local storage staleness!)
+
 app.get('/api/users/sync-session', async (req, res) => {
     const { email } = req.query;
     if (!email) {
@@ -910,7 +910,7 @@ app.get('/api/users/sync-session', async (req, res) => {
         const user = rows[0];
         let dbChanged = false;
         
-        // Parse JSON fields
+        
         if (typeof user.purchasedProducts === 'string') {
             user.purchasedProducts = JSON.parse(user.purchasedProducts);
         }
@@ -921,7 +921,7 @@ app.get('/api/users/sync-session', async (req, res) => {
         }
         user.purchases = user.purchases || [];
         
-        // Auto-resolve avatar for legacy accounts lacking a robloxAvatar field
+        
         if (!user.robloxAvatar) {
             try {
                 const robloxRes = await fetch("https://users.roblox.com/v1/usernames/users", {
@@ -936,7 +936,7 @@ app.get('/api/users/sync-session', async (req, res) => {
                     const robloxData = await robloxRes.json();
                     if (robloxData.data && robloxData.data.length > 0) {
                         const rUser = robloxData.data[0];
-                        // Store proxy URL so browser doesn't hit CORS from tr.rbxcdn.com
+                        
                         user.robloxAvatar = `/api/roblox/avatar-proxy?userId=${rUser.id}`;
                         dbChanged = true;
                     }
@@ -946,7 +946,7 @@ app.get('/api/users/sync-session', async (req, res) => {
             }
         }
         
-        // Load products from DB to check gamePassId
+        
         let products = [];
         try {
             const [pRows] = await dbPool.query('SELECT * FROM products');
@@ -963,7 +963,7 @@ app.get('/api/users/sync-session', async (req, res) => {
             for (const productId of user.purchasedProducts) {
                 const product = products.find(p => p.id === productId);
                 if (product) {
-                    // Verify ownership live in Roblox!
+                    
                     const isRealOwner = await checkGamePassOwnership(user.robloxUser, product.gamePassId);
                     if (isRealOwner) {
                         validatedProducts.push(productId);
@@ -976,7 +976,7 @@ app.get('/api/users/sync-session', async (req, res) => {
                         console.log(`User ${user.email} lost or lacks Roblox ownership of product ${productId}. Removing.`);
                     }
                 } else {
-                    // Product no longer exists in database, remove it!
+                    
                     ownershipChanged = true;
                     console.log(`Product ${productId} not found in database. Removing from purchased list.`);
                 }
@@ -1003,10 +1003,10 @@ app.get('/api/users/sync-session', async (req, res) => {
     }
 });
 
-// Promocode Database File Path
+
 const PROMOCODES_FILE = path.join(__dirname, '../config/promocodes.json');
 
-// Validate Promo Code Endpoint
+
 app.get('/api/promocodes/validate', (req, res) => {
     const { code } = req.query;
     if (!code) {
@@ -1041,7 +1041,7 @@ app.get('/api/promocodes/validate', (req, res) => {
     }
 });
 
-// Increment Promo Code Usage Endpoint
+
 app.post('/api/promocodes/use', (req, res) => {
     const { code } = req.body;
     if (!code) return res.status(400).json({ success: false });
@@ -1067,12 +1067,12 @@ app.post('/api/promocodes/use', (req, res) => {
     }
 });
 
-// Serve frontend for all other routes
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Start server
+
 app.listen(PORT, async () => {
     await initDatabase();
     console.log(`Server is running on port ${PORT}`);

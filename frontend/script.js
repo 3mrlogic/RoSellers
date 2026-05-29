@@ -1,4 +1,4 @@
-// Premium Custom Alert & Confirm Engine (Dynamic Injected Glassmorphism UI)
+
 (function initCustomAlertSystem() {
     const styles = `
         .custom-alert-overlay {
@@ -188,9 +188,9 @@
     };
 })();
 
-// =============================================
-// Secure Cryptographic Storage Helper v1.0
-// =============================================
+
+
+
 const SecureStorage = {
     KEY: "RoSellersSecureSalt123!",
     encrypt(text) {
@@ -223,11 +223,11 @@ const SecureStorage = {
     }
 };
 
-// =============================================
-// Premium Interactive UI Engine v3.0
-// =============================================
 
-// Mobile Menu Toggle
+
+
+
+
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 const mobileMenu = document.getElementById('mobileMenu');
 if (mobileMenuBtn && mobileMenu) {
@@ -239,14 +239,14 @@ if (mobileMenuBtn && mobileMenu) {
     });
 }
 
-// Scroll Progress Bar
+
 const progressBar = document.getElementById('progressBar');
 window.addEventListener('scroll', () => {
     if (progressBar) {
         const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
         progressBar.style.width = Math.min(scrolled, 100) + '%';
     }
-    // Nav background intensity
+    
     const nav = document.getElementById('mainNav');
     if (nav) {
         if (window.scrollY > 60) {
@@ -259,7 +259,7 @@ window.addEventListener('scroll', () => {
     }
 }, { passive: true });
 
-// ── Intersection Observer Reveal ──────────────────────
+
 const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -273,7 +273,7 @@ document.querySelectorAll('section, .reveal, .reveal-left, .reveal-right, .stagg
     revealObserver.observe(el);
 });
 
-// ── 3D Tilt Effect ────────────────────────────────────
+
 function initTilt() {
     document.querySelectorAll('.tilt-card').forEach(card => {
         card.addEventListener('mousemove', (e) => {
@@ -293,7 +293,7 @@ function initTilt() {
 }
 initTilt();
 
-// ── Glass Card Mouse Spotlight ─────────────────────────
+
 document.addEventListener('mousemove', (e) => {
     document.querySelectorAll('.glass-card').forEach(card => {
         const rect = card.getBoundingClientRect();
@@ -306,7 +306,7 @@ document.addEventListener('mousemove', (e) => {
     });
 });
 
-// ── Magnetic Buttons ──────────────────────────────────
+
 document.querySelectorAll('.magnetic-btn').forEach(btn => {
     btn.addEventListener('mousemove', (e) => {
         const rect = btn.getBoundingClientRect();
@@ -319,10 +319,10 @@ document.querySelectorAll('.magnetic-btn').forEach(btn => {
     });
 });
 
-// Custom cursor declaration handled by master interactive cursor block below
 
 
-// Counter Animation
+
+
 function animateCounter(element, target, duration = 2200) {
     if (!element) return;
     let start = 0;
@@ -339,7 +339,7 @@ function animateCounter(element, target, duration = 2200) {
     }, 16);
 }
 
-// Start counters when hero stats become visible
+
 const counterEls = ['counter1','counter2','counter3','counter4'];
 const counterTargets = [50, 200, 150, 3];
 const statsEl = document.querySelector('.stagger');
@@ -352,7 +352,7 @@ if (statsEl) {
     }, { threshold: 0.3 });
     counterObserver.observe(statsEl);
 } else {
-    // Fallback
+    
     window.addEventListener('load', () => {
         setTimeout(() => {
             counterEls.forEach((id, i) => animateCounter(document.getElementById(id), counterTargets[i]));
@@ -360,7 +360,7 @@ if (statsEl) {
     });
 }
 
-// Smooth scroll for navigation links
+
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
         e.preventDefault();
@@ -371,7 +371,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Add hover effect to product cards
+
 const productCards = document.querySelectorAll('#products .group');
 productCards.forEach(card => {
     card.addEventListener('mouseenter', () => {
@@ -382,7 +382,7 @@ productCards.forEach(card => {
     });
 });
 
-// GIF hover effects
+
 const gifFeatures = document.querySelectorAll('.gif-feature');
 gifFeatures.forEach(gif => {
     gif.addEventListener('mouseenter', () => {
@@ -403,7 +403,7 @@ gifPricing.forEach(gif => {
     });
 });
 
-// Hero GIFs floating animation enhancement
+
 const heroGifs = document.querySelectorAll('.gif-hero');
 heroGifs.forEach((gif, index) => {
     gif.addEventListener('mouseenter', () => {
@@ -416,37 +416,37 @@ heroGifs.forEach((gif, index) => {
     });
 });
 
-// ── FAQ Smooth Accordion ────────────────────────────────
+
 function toggleFaq(btn) {
     const content = btn.nextElementSibling;
     const icon = btn.querySelector('.faq-icon');
     const isOpen = content.classList.contains('open');
     
-    // Close all others
+    
     document.querySelectorAll('.faq-content.open').forEach(c => {
         c.classList.remove('open');
         const prevIcon = c.previousElementSibling.querySelector('.faq-icon');
         if (prevIcon) prevIcon.style.transform = 'rotate(0deg)';
     });
     
-    // Toggle current
+    
     if (!isOpen) {
         content.classList.add('open');
         if (icon) icon.style.transform = 'rotate(180deg)';
     }
 }
 
-// Also handle old-style .hidden FAQ items
+
 document.querySelectorAll('.faq-toggle').forEach(btn => {
     const oldContent = btn.nextElementSibling;
     if (oldContent && oldContent.classList.contains('hidden') && !oldContent.classList.contains('faq-content')) {
-        // Migrate to new system
+        
         oldContent.classList.remove('hidden');
         oldContent.classList.add('faq-content');
     }
 });
 
-// ── Contact Form Handler with Toast ─────────────────────
+
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
@@ -456,7 +456,7 @@ if (contactForm) {
     });
 }
 
-// ── Toast Notification System ────────────────────────────
+
 function showToast(message, type = 'info') {
     let toast = document.getElementById('toast');
     if (!toast) {
@@ -470,7 +470,7 @@ function showToast(message, type = 'info') {
     setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
-// ── Particles Canvas ──────────────────────────────────────
+
 const canvas = document.getElementById('particles');
 if (canvas) {
     const ctx = canvas.getContext('2d');
@@ -512,7 +512,7 @@ if (canvas) {
             if (p.y > canvas.height + 5) p.y = -5;
         });
 
-        // Draw lines between nearby particles
+        
         for (let i = 0; i < particles.length; i++) {
             for (let j = i + 1; j < particles.length; j++) {
                 const dx = particles[i].x - particles[j].x;
@@ -533,14 +533,14 @@ if (canvas) {
     drawParticles();
 }
 
-// ── Dynamic year in footer ────────────────────────────────
+
 const yearSpan = document.querySelector('footer p');
 if (yearSpan) {
     const currentYear = new Date().getFullYear();
     yearSpan.textContent = `© ${currentYear} RoSellers. جميع الحقوق محفوظة.`;
 }
 
-// Add loading animation for buttons
+
 const buttons = document.querySelectorAll('button');
 buttons.forEach(button => {
     button.addEventListener('click', function() {
@@ -558,7 +558,7 @@ buttons.forEach(button => {
     });
 });
 
-// Parallax effect for hero section
+
 window.addEventListener('scroll', () => {
     const scrolled = window.pageYOffset;
     const hero = document.querySelector('#home');
@@ -567,14 +567,14 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Add keyboard navigation support
+
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         mobileMenu.classList.remove('active');
     }
 });
 
-// Performance optimization: Lazy load images (if any are added later)
+
 if ('IntersectionObserver' in window) {
     const imageObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -592,12 +592,12 @@ if ('IntersectionObserver' in window) {
     });
 }
 
-// Dynamic year, loading animation, and parallax helpers
 
-// Load Config Data
+
+
 async function loadConfig() {
     try {
-        // Load testimonials
+        
         const testimonialsResponse = await fetch('/api/testimonials');
         if (testimonialsResponse.ok) {
             const testimonialsData = await testimonialsResponse.json();
@@ -606,7 +606,7 @@ async function loadConfig() {
             throw new Error('Failed to load testimonials');
         }
         
-        // Load products
+        
         const productsResponse = await fetch('/api/products');
         if (productsResponse.ok) {
             const productsData = await productsResponse.json();
@@ -615,7 +615,7 @@ async function loadConfig() {
             throw new Error('Failed to load products');
         }
         
-        // Load settings
+        
         const settingsResponse = await fetch('/api/settings');
         if (settingsResponse.ok) {
             const settingsData = await settingsResponse.json();
@@ -627,12 +627,12 @@ async function loadConfig() {
     } catch (error) {
         console.error('Error loading config:', error);
         console.log('Using default data...');
-        // Load default data
+        
         loadDefaultData();
     }
 }
 
-// Load Default Data (fallback)
+
 function loadDefaultData() {
     const defaultTestimonials = [
         {
@@ -713,12 +713,12 @@ function loadDefaultData() {
     updateSettings(defaultSettings);
 }
 
-// Update Testimonials
+
 function updateTestimonials(testimonials) {
     const testimonialsContainer = document.getElementById('testimonials-container');
     if (!testimonialsContainer) return;
     
-    // Select 3 random testimonials
+    
     const shuffled = [...testimonials].sort(() => 0.5 - Math.random());
     const selectedTestimonials = shuffled.slice(0, 3);
     
@@ -743,22 +743,22 @@ function updateTestimonials(testimonials) {
 
 
 
-// Update Settings
+
 function updateSettings(settings) {
-    // Update site name
+    
     const siteNameElements = document.querySelectorAll('.site-name');
     siteNameElements.forEach(el => {
         el.textContent = settings.site.name;
     });
     
-    // Update contact info
+    
     const contactEmail = document.querySelector('.contact-email');
     if (contactEmail) {
         contactEmail.textContent = settings.contact.email;
     }
 }
 
-// Web Audio API Sound Effects Synthesizer (Instant & Zero-dependency!)
+
 const AudioSFX = {
     ctx: null,
     
@@ -774,7 +774,7 @@ const AudioSFX = {
         this.init();
         if (!this.ctx || this.ctx.state === 'suspended') return;
         
-        // Play a very subtle premium soft tick
+        
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         
@@ -796,12 +796,12 @@ const AudioSFX = {
         this.init();
         if (!this.ctx) return;
         
-        // Unlock AudioContext if suspended by browser policies
+        
         if (this.ctx.state === 'suspended') {
             this.ctx.resume();
         }
         
-        // Play a crisp, premium Apple metallic click
+        
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         
@@ -820,11 +820,11 @@ const AudioSFX = {
     }
 };
 
-// Initialize AudioContext on first user interaction to satisfy browser security policies
+
 window.addEventListener('click', () => AudioSFX.init(), { once: true });
 window.addEventListener('touchstart', () => AudioSFX.init(), { once: true });
 
-// Apple Custom Cursor & Mouse Coordinates for Liquid Glass Effects
+
 const appleCursor = document.getElementById('appleCursor');
 if (appleCursor) {
     let mouseX = -100;
@@ -837,7 +837,7 @@ if (appleCursor) {
         mouseX = e.clientX;
         mouseY = e.clientY;
         
-        // Dynamic mouse coordinate updates only on the active/hovered glass element (HUGE performance boost!)
+        
         if (activeGlassCard) {
             const rect = activeGlassCard.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -847,12 +847,12 @@ if (appleCursor) {
         }
     });
 
-    // Custom springy LERP animation loop at 60fps/120fps
+    
     function tick() {
         const dx = mouseX - cursorX;
         const dy = mouseY - cursorY;
         
-        // Smoothly interpolate cursor position
+        
         cursorX += dx * 0.25;
         cursorY += dy * 0.25;
         
@@ -861,7 +861,7 @@ if (appleCursor) {
     }
     tick();
 
-    // Hover state listener on all interactive elements
+    
     const interactiveSelectors = 'a, button, input, textarea, select, [role="button"], .faq-toggle, .glass-card, .liquid-glass, #userNavbarProfile';
     
     function addCursorHoverListeners() {
@@ -869,19 +869,19 @@ if (appleCursor) {
             if (el.dataset.hasCursorListeners) return;
             el.dataset.hasCursorListeners = 'true';
             
-            // Mouse Enter
+            
             el.addEventListener('mouseenter', () => {
                 appleCursor.classList.add('hovering');
                 if (el.classList.contains('glass-card') || el.classList.contains('liquid-glass')) {
                     activeGlassCard = el;
                 }
-                // Play hover sound for clickable items
+                
                 if (el.tagName === 'A' || el.tagName === 'BUTTON' || el.classList.contains('faq-toggle') || el.getAttribute('role') === 'button') {
                     AudioSFX.playHover();
                 }
             });
             
-            // Mouse Leave
+            
             el.addEventListener('mouseleave', () => {
                 appleCursor.classList.remove('hovering');
                 if (activeGlassCard === el) {
@@ -889,7 +889,7 @@ if (appleCursor) {
                 }
             });
 
-            // Click Trigger
+            
             el.addEventListener('click', () => {
                 if (el.tagName === 'A' || el.tagName === 'BUTTON' || el.classList.contains('faq-toggle') || el.getAttribute('role') === 'button' || el.type === 'submit') {
                     AudioSFX.playClick();
@@ -900,13 +900,13 @@ if (appleCursor) {
 
     addCursorHoverListeners();
     
-    // Re-bind when dynamic content changes (like loading products/testimonials)
+    
     const observer = new MutationObserver(() => {
         addCursorHoverListeners();
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // Click effect active states
+    
     window.addEventListener('mousedown', () => {
         appleCursor.classList.add('clicking');
     });
@@ -915,13 +915,13 @@ if (appleCursor) {
     });
 }
 
-// Cache dynamic products array globally for checkout integration
+
 function updateProducts(products) {
     window.loadedProductsCache = products;
     const productsContainer = document.getElementById('products-container');
     if (!productsContainer) return;
     
-    // Get purchased items from the logged-in user session (Persistent sync!)
+    
     const currentUserObj = SecureStorage.getItem('currentUser');
     const purchasedIds = currentUserObj ? (currentUserObj.purchasedProducts || []) : [];
     
@@ -966,15 +966,15 @@ function updateProducts(products) {
     }).join('');
 }
 
-// ============================================
-//   CLIENT AUTH & GAMEPASS CHECKOUT ENGINE
-// ============================================
+
+
+
 
 let currentPendingProduct = null;
 let checkoutTimerInterval = null;
 let verificationInterval = null;
 
-// Open Auth Modal
+
 window.openAuthModal = function(tab = 'signup') {
     const modal = document.getElementById('authModal');
     if (modal) {
@@ -983,7 +983,7 @@ window.openAuthModal = function(tab = 'signup') {
     }
 };
 
-// Close Auth Modal
+
 window.closeAuthModal = function() {
     const modal = document.getElementById('authModal');
     if (modal) {
@@ -991,7 +991,7 @@ window.closeAuthModal = function() {
     }
 };
 
-// Toggle Sign Up / Login Tab
+
 window.toggleAuthTab = function(tab) {
     const btnSignup = document.getElementById('tabBtnSignup');
     const btnLogin = document.getElementById('tabBtnLogin');
@@ -1011,7 +1011,7 @@ window.toggleAuthTab = function(tab) {
     }
 };
 
-// Password Strength live updates
+
 setTimeout(() => {
     const authPasswordInput = document.getElementById('authPassword');
     if (authPasswordInput) {
@@ -1050,7 +1050,7 @@ setTimeout(() => {
     }
 }, 500);
 
-// User Sign Up Form submit
+
 const signupForm = document.getElementById('signupForm');
 if (signupForm) {
     signupForm.addEventListener('submit', async function(e) {
@@ -1071,14 +1071,14 @@ if (signupForm) {
             return;
         }
         
-        // Loader indicator during submit
+        
         const submitBtn = signupForm.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.textContent;
         submitBtn.textContent = 'جاري التحقق وإنشاء الحساب...';
         submitBtn.disabled = true;
         
         try {
-            // 1. Verify Roblox account exists in Roblox
+            
             const checkRes = await fetch(`/api/roblox/user-check?username=${encodeURIComponent(robloxUser)}`);
             if (!checkRes.ok) throw new Error('Roblox API Error');
             const checkData = await checkRes.json();
@@ -1093,7 +1093,7 @@ if (signupForm) {
             const robloxId = checkData.data[0].id || null;
             const robloxAvatar = checkData.data[0].avatarUrl || null;
             
-            // 2. Proceed with database registration request
+            
             const response = await fetch('/api/users/register-request', {
                 method: 'POST',
                 headers: {
@@ -1111,15 +1111,15 @@ if (signupForm) {
                 return;
             }
             
-            // Success! Store temp registration state locally to use in verify step
+            
             window.pendingRegData = { robloxUser, robloxId, realName, email, password, robloxAvatar };
             
-            // Switch forms
+            
             signupForm.classList.add('hidden');
             const otpForm = document.getElementById('otpForm');
             if (otpForm) otpForm.classList.remove('hidden');
             
-            // Hide tabs temporarily
+            
             const tabBtnSignup = document.getElementById('tabBtnSignup');
             const tabBtnLogin = document.getElementById('tabBtnLogin');
             if (tabBtnSignup) tabBtnSignup.style.display = 'none';
@@ -1138,7 +1138,7 @@ if (signupForm) {
     });
 }
 
-// Cancel OTP Verification
+
 window.cancelOtpVerification = function() {
     const signupForm = document.getElementById('signupForm');
     const otpForm = document.getElementById('otpForm');
@@ -1153,7 +1153,7 @@ window.cancelOtpVerification = function() {
     }
 };
 
-// OTP Verification Form Submit
+
 const otpForm = document.getElementById('otpForm');
 if (otpForm) {
     otpForm.addEventListener('submit', async function(e) {
@@ -1203,14 +1203,14 @@ if (otpForm) {
                 return;
             }
             
-            // Save current session locally
+            
             SecureStorage.setItem('currentUser', resData.user);
             
             alert('تم التحقق وتفعيل الحساب بنجاح! مرحباً بك 🎉');
             closeAuthModal();
             updateNavProfile();
             
-            // Reset modal state
+            
             otpForm.classList.add('hidden');
             signupForm.classList.remove('hidden');
             const tabBtnSignup = document.getElementById('tabBtnSignup');
@@ -1218,7 +1218,7 @@ if (otpForm) {
             if (tabBtnSignup) tabBtnSignup.style.display = 'block';
             if (tabBtnLogin) tabBtnLogin.style.display = 'block';
             
-            // Check if there was a pending product purchase, direct them immediately!
+            
             if (currentPendingProduct) {
                 openCheckoutModal(currentPendingProduct);
                 currentPendingProduct = null;
@@ -1235,7 +1235,7 @@ if (otpForm) {
     });
 }
 
-// User Login Form submit
+
 const loginFormClient = document.getElementById('loginFormClient');
 if (loginFormClient) {
     loginFormClient.addEventListener('submit', async function(e) {
@@ -1278,7 +1278,7 @@ if (loginFormClient) {
     });
 }
 
-// Update Nav profile dynamic views
+
 function updateNavProfile() {
     const user = SecureStorage.getItem('currentUser');
     const loginBtn = document.getElementById('loginNavBtn');
@@ -1305,7 +1305,7 @@ function updateNavProfile() {
         if (userNavAvatar) {
             let avatarSrc = user.robloxAvatar;
             
-            // Auto-upgrade: if it's a direct Roblox CDN URL, re-route via our server proxy
+            
             if (avatarSrc && avatarSrc.includes('tr.rbxcdn.com')) {
                 const proxyId = user.robloxId || '';
                 avatarSrc = `/api/roblox/avatar-proxy?userId=${proxyId}&t=${Date.now()}`;
@@ -1324,7 +1324,7 @@ function updateNavProfile() {
         }
         if (logoutNavBtn) logoutNavBtn.classList.remove('hidden');
         
-        // Mobile updates
+        
         if (mobileLoginBtn) mobileLoginBtn.classList.add('hidden');
         if (mobileUserNavbarProfile) {
             mobileUserNavbarProfile.classList.remove('hidden');
@@ -1354,7 +1354,7 @@ function updateNavProfile() {
         }
         if (logoutNavBtn) logoutNavBtn.classList.add('hidden');
         
-        // Mobile updates
+        
         if (mobileLoginBtn) mobileLoginBtn.classList.remove('hidden');
         if (mobileUserNavbarProfile) {
             mobileUserNavbarProfile.classList.remove('flex');
@@ -1364,7 +1364,7 @@ function updateNavProfile() {
     }
 }
 
-// Logout
+
 window.logoutUser = async function() {
     if (await customConfirm('هل ترغب في تسجيل الخروج؟')) {
         SecureStorage.removeItem('currentUser');
@@ -1373,7 +1373,7 @@ window.logoutUser = async function() {
     }
 };
 
-// Override the click triggers on purchase buttons
+
 window.simulatePurchase = function(productId) {
     let matchedProduct = null;
     if (window.loadedProductsCache) {
@@ -1401,16 +1401,16 @@ window.simulatePurchase = function(productId) {
     openCheckoutModal(matchedProduct);
 };
 
-// Open Checkout and start 10-minute timer & check loop
+
 window.openCheckoutModal = function(product) {
     const modal = document.getElementById('checkoutModal');
     if (!modal) return;
     
-    // Stop any active timer
+    
     clearInterval(checkoutTimerInterval);
     clearInterval(verificationInterval);
     
-    // Reset Promo Code state
+    
     window.activeAppliedPromoCode = null;
     const promoInput = document.getElementById('checkoutPromoInput');
     if (promoInput) promoInput.value = '';
@@ -1431,10 +1431,10 @@ window.openCheckoutModal = function(product) {
         gpBtn.href = `https://www.roblox.com/game-pass/${product.gamePassId}`;
     }
     
-    // Show modal
+    
     modal.classList.add('modal-active');
     
-    // Start 10 minute countdown (600 seconds)
+    
     let timeLeft = 600;
     const timerText = document.getElementById('checkoutTimer');
     
@@ -1454,7 +1454,7 @@ window.openCheckoutModal = function(product) {
         }
     }, 1000);
     
-    // Start Ownership Verification Polling loop
+    
     let checkCount = 0;
     const statusText = document.getElementById('checkoutStatusText');
     
@@ -1466,7 +1466,7 @@ window.openCheckoutModal = function(product) {
             const checkRes = await fetch(`/api/roblox/check-ownership?username=${encodeURIComponent(user.robloxUser)}&gamePassId=${product.gamePassId}`);
             
             if (!checkRes.ok) {
-                // Show caution/warning but keep polling (maybe Roblox is rate-limiting or offline)
+                
                 statusText.textContent = `فشل الفحص في المحاولة ${checkCount}. سنحاول مجدداً... (تأكد من شراء الجيم باس)`;
                 return;
             }
@@ -1477,7 +1477,7 @@ window.openCheckoutModal = function(product) {
                 clearInterval(checkoutTimerInterval);
                 clearInterval(verificationInterval);
                 
-                // Sync purchase to persistent server database (Bypasses localStorage losses!)
+                
                 try {
                     const response = await fetch('/api/users/sync-purchases', {
                         method: 'POST',
@@ -1489,11 +1489,11 @@ window.openCheckoutModal = function(product) {
                     
                     if (response.ok) {
                         const resData = await response.json();
-                        // Update local session cache with updated purchases list
+                        
                         SecureStorage.setItem('currentUser', resData.user);
                     }
                     
-                    // Increment promo code usage if applied!
+                    
                     if (window.activeAppliedPromoCode) {
                         await fetch('/api/promocodes/use', {
                             method: 'POST',
@@ -1506,7 +1506,7 @@ window.openCheckoutModal = function(product) {
                     console.error('Error syncing purchase to server db:', err);
                 }
                 
-                // Success sound and notice
+                
                 AudioSFX.playClick();
                 statusText.textContent = "تم التحقق من الدفع وامتلاك الجيم باس بنجاح! 🎉";
                 alert(`تم التحقق! حساب روبلوكس (${user.robloxUser}) يمتلك الجيم باس الآن. جاري تحويلك لصفحة الفاتورة والتركيب...`);
@@ -1520,7 +1520,7 @@ window.openCheckoutModal = function(product) {
     }, 4000);
 };
 
-// Close Checkout
+
 window.closeCheckoutModal = function() {
     const modal = document.getElementById('checkoutModal');
     if (modal) {
@@ -1530,7 +1530,7 @@ window.closeCheckoutModal = function() {
     clearInterval(verificationInterval);
 };
 
-// Debounce function to limit API requests
+
 function debounce(func, delay = 500) {
     let timer;
     return function(...args) {
@@ -1539,12 +1539,12 @@ function debounce(func, delay = 500) {
     };
 }
 
-// Initial binding helper on load
+
 document.addEventListener('DOMContentLoaded', async () => {
-    // Show navbar immediately with whatever is cached (avoids empty nav flash)
+    
     updateNavProfile();
     
-    // Toggle Mobile Menu
+    
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
     if (mobileMenuBtn && mobileMenu) {
@@ -1553,16 +1553,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
-    // Sync session from server dynamically to bypass stale localStorage caches!
+    
     const localUser = SecureStorage.getItem('currentUser');
     if (localUser && localUser.email) {
         try {
             const res = await fetch(`/api/users/sync-session?email=${encodeURIComponent(localUser.email)}`);
             if (res.ok) {
                 const data = await res.json();
-                // Update localStorage with fresh data (including robloxAvatar!)
+                
                 SecureStorage.setItem('currentUser', data.user);
-                // Re-render navbar NOW with the fresh avatar from server
+                
                 updateNavProfile();
             }
         } catch (err) {
@@ -1570,10 +1570,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
-    // Load configurations sequentially AFTER the session is guaranteed to be in sync!
+    
     await loadConfig();
     
-    // Live Roblox Username Lookup via RoProxy
+    
     const robloxInput = document.getElementById('authRobloxUser');
     if (robloxInput) {
         const previewContainer = document.getElementById('robloxProfilePreview');
@@ -1590,7 +1590,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             
             try {
-                // Step 1: Call local Express backend proxy (bypasses browser CORS blocks entirely!)
+                
                 const searchRes = await fetch(`/api/roblox/user-check?username=${encodeURIComponent(username)}`);
                 if (!searchRes.ok) throw new Error('API Error');
                 
@@ -1604,10 +1604,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const robloxUser = searchData.data[0];
                 const userId = robloxUser.id;
                 
-                // Step 2: Use direct pre-resolved absolute avatar CDN URL from our server
+                
                 const avatarUrl = robloxUser.avatarUrl;
                 
-                // Show preview UI
+                
                 dispName.textContent = robloxUser.displayName || robloxUser.name;
                 userText.textContent = `@${robloxUser.name}`;
                 avatarImg.src = avatarUrl;
@@ -1629,7 +1629,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Apply Promo Code Handler
+
 window.applyPromoCode = async function() {
     const codeInput = document.getElementById('checkoutPromoInput');
     const statusMsg = document.getElementById('promoStatusMsg');
@@ -1653,7 +1653,7 @@ window.applyPromoCode = async function() {
             statusMsg.className = "text-xs font-semibold mb-4 text-green-400 block";
             statusMsg.classList.remove('hidden');
             
-            // Adjust the displayed price visually
+            
             const priceEl = document.getElementById('checkoutProductPrice');
             const originalPriceText = priceEl.textContent;
             const originalPrice = parseFloat(originalPriceText);
@@ -1674,11 +1674,11 @@ window.applyPromoCode = async function() {
     }
 };
 
-// Console welcome message
+
 console.log('%c🎮 Welcome to RoSellers!', 'color: #6366f1; font-size: 20px; font-weight: bold;');
 console.log('%cPremium Roblox Systems & Products', 'color: #8b5cf6; font-size: 14px;');
 
-// Cinematic Preloader Fade Out
+
 window.addEventListener('load', () => {
     const preloader = document.getElementById('preloader');
     if (preloader) {
@@ -1692,7 +1692,7 @@ window.addEventListener('load', () => {
     }
 });
 
-// Server Connection Health Check Monitoring
+
 function initConnectionMonitor() {
     const badge = document.getElementById('serverStatusBadge');
     const dot = document.getElementById('serverStatusDot');
@@ -1710,7 +1710,7 @@ function initConnectionMonitor() {
             if (res.ok) {
                 const data = await res.json();
                 
-                // Connected state
+                
                 badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
                 dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]";
                 text.textContent = "متصل بالسيرفر";
@@ -1730,7 +1730,7 @@ function initConnectionMonitor() {
                 throw new Error('Not OK');
             }
         } catch (e) {
-            // Disconnected state
+            
             badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 bg-red-500/10 border border-red-500/20 text-red-400";
             dot.className = "w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shadow-[0_0_8px_#f87171]";
             text.textContent = "انقطع الاتصال ⚠️";
@@ -1743,7 +1743,7 @@ function initConnectionMonitor() {
         }
     }
     
-    // Initial check and set interval
+    
     checkHealth();
     setInterval(checkHealth, 8000);
 }
