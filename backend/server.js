@@ -78,12 +78,25 @@ app.set('trust proxy', true);
 const PORT = process.env.PORT || 3000;
 
 
+// Simple In-Memory Rate Limiter to protect endpoints from DDoS/abuse
 const rateLimitMap = new Map();
-const LIMIT_WINDOW = 60 * 1000; 
-const MAX_REQUESTS = 200; 
+const LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS = 200; // 200 requests per minute per IP
+
+// Persistent IP Blacklist & Abuse Tracker
+const bannedIPs = new Set();
+const abuseCountMap = new Map();
+const BAN_VIOLATION_THRESHOLD = 5; // Banned permanently after 5 rate limit violations
 
 function rateLimiter(req, res, next) {
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    
+    // Instant drop if already blacklisted
+    if (bannedIPs.has(ip)) {
+        req.socket.destroy();
+        return;
+    }
+    
     const now = Date.now();
     
     if (!rateLimitMap.has(ip)) {
@@ -93,7 +106,47 @@ function rateLimiter(req, res, next) {
     let timestamps = rateLimitMap.get(ip);
     timestamps = timestamps.filter(t => now - t < LIMIT_WINDOW);
     
+    // Critical Auto-Ban threshold (1.5x limit flood)
+    if (timestamps.length >= MAX_REQUESTS * 1.5) {
+        console.log(`[SECURITY ALERT] IP ${ip} flooded with ${timestamps.length} requests. Banning permanently! 🚫`);
+        bannedIPs.add(ip);
+        
+        sendDiscordNotification({
+            title: "🚫 تم حظر عنوان IP للمهاجم تلقائياً وبشكل دائم!",
+            description: `تم رصد هجوم فيضان مفرط (Flood) من هذا العنوان وجرى إدراجه في القائمة السوداء وقطع الاتصالات بالكامل.`,
+            color: 16580608,
+            fields: [
+                { name: "عنوان الـ IP المحظور", value: `\`${ip}\``, inline: true },
+                { name: "حجم الطلبات الملغاة", value: `\`${timestamps.length}\``, inline: true }
+            ],
+            footer: { text: "نظام دفاع RoSellers Shield" },
+            timestamp: new Date().toISOString()
+        });
+        
+        req.socket.destroy();
+        return;
+    }
+    
     if (timestamps.length >= MAX_REQUESTS) {
+        let violations = (abuseCountMap.get(ip) || 0) + 1;
+        abuseCountMap.set(ip, violations);
+        
+        if (violations >= BAN_VIOLATION_THRESHOLD) {
+            console.log(`[SECURITY ALERT] IP ${ip} blacklisted for repeating violations. 🚫`);
+            bannedIPs.add(ip);
+            
+            sendDiscordNotification({
+                title: "🚫 حظر تلقائي دائم لتكرار التجاوزات!",
+                description: `تم إدراج عنوان الـ IP في القائمة السوداء بعد تجاوزه للحد الأقصى للطلبات لـ ${BAN_VIOLATION_THRESHOLD} مرات متتالية.`,
+                color: 16580608,
+                fields: [
+                    { name: "عنوان الـ IP المحظور", value: `\`${ip}\``, inline: true }
+                ],
+                footer: { text: "نظام دفاع RoSellers Shield" },
+                timestamp: new Date().toISOString()
+            });
+        }
+        
         req.socket.destroy();
         return;
     }
@@ -101,7 +154,7 @@ function rateLimiter(req, res, next) {
     timestamps.push(now);
     rateLimitMap.set(ip, timestamps);
     next();
-}
+};
 
 
 function hashPassword(password) {
