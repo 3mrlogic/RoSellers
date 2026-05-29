@@ -1652,16 +1652,34 @@ function initConnectionMonitor() {
     const dot = document.getElementById('serverStatusDot');
     const text = document.getElementById('serverStatusText');
     
+    const dbBadge = document.getElementById('dbStatusBadge');
+    const dbDot = document.getElementById('dbStatusDot');
+    const dbText = document.getElementById('dbStatusText');
+    
     if (!badge || !dot || !text) return;
     
     async function checkHealth() {
         try {
             const res = await fetch('/api/ping', { cache: 'no-store' });
             if (res.ok) {
+                const data = await res.json();
+                
                 // Connected state
                 badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
                 dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]";
                 text.textContent = "متصل بالسيرفر";
+                
+                if (dbBadge && dbDot && dbText) {
+                    if (data.dbConnected) {
+                        dbBadge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
+                        dbDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]";
+                        dbText.textContent = "قاعدة البيانات: متصلة";
+                    } else {
+                        dbBadge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 bg-red-500/10 border border-red-500/20 text-red-400";
+                        dbDot.className = "w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shadow-[0_0_8px_#f87171]";
+                        dbText.textContent = "قاعدة البيانات: غير متصلة ⚠️";
+                    }
+                }
             } else {
                 throw new Error('Not OK');
             }
@@ -1670,6 +1688,12 @@ function initConnectionMonitor() {
             badge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 bg-red-500/10 border border-red-500/20 text-red-400";
             dot.className = "w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shadow-[0_0_8px_#f87171]";
             text.textContent = "انقطع الاتصال ⚠️";
+            
+            if (dbBadge && dbDot && dbText) {
+                dbBadge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all duration-500 bg-red-500/10 border border-red-500/20 text-red-400";
+                dbDot.className = "w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shadow-[0_0_8px_#f87171]";
+                dbText.textContent = "قاعدة البيانات: غير متصلة ⚠️";
+            }
         }
     }
     

@@ -19,6 +19,59 @@ const transporter = nodemailer.createTransport({
 // In-Memory store for verification OTP codes
 const pendingRegistrations = new Map();
 
+const mysql = require('mysql2/promise');
+
+// Initialize MySQL/MariaDB Connection Pool
+const dbPool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'rosellers',
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
+
+// Database Table Initialization Helper
+async function initDatabase() {
+    try {
+        console.log('Connecting and initializing MySQL database...');
+        
+        // 1. Create users table
+        await dbPool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                robloxUser VARCHAR(100) NOT NULL,
+                robloxId BIGINT NULL,
+                realName VARCHAR(150) NOT NULL,
+                email VARCHAR(150) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                robloxAvatar TEXT NULL,
+                purchasedProducts JSON NULL,
+                purchases JSON NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        `);
+        
+        // 2. Create products table
+        await dbPool.query(`
+            CREATE TABLE IF NOT EXISTS products (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(150) NOT NULL,
+                price INT NOT NULL,
+                gamePassId VARCHAR(100) NOT NULL,
+                description TEXT NOT NULL,
+                video VARCHAR(255) NULL,
+                downloadUrl TEXT NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        `);
+        
+        console.log('MySQL Database initialized successfully! 📊');
+    } catch (err) {
+        console.error('CRITICAL: Failed to initialize MySQL database:', err.message);
+    }
+}
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -191,11 +244,10 @@ app.get('/api/testimonials', (req, res) => {
     }
 });
 
-app.get('/api/products', (req, res) => {
+app.get('/api/products', async (req, res) => {
     try {
-        const filePath = path.join(__dirname, '../config/products-admin.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        res.json(JSON.parse(data));
+        const [rows] = await dbPool.query('SELECT * FROM products');
+        res.json({ products: rows });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -286,17 +338,16 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 // Admin Panel API Routes
-app.get('/api/admin/products', (req, res) => {
+app.get('/api/admin/products', async (req, res) => {
     try {
-        const filePath = path.join(__dirname, '../config/products-admin.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        res.json(JSON.parse(data));
+        const [rows] = await dbPool.query('SELECT * FROM products');
+        res.json({ products: rows });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
-app.post('/api/admin/products', (req, res) => {
+app.post('/api/admin/products', async (req, res) => {
     const { products } = req.body;
     const authHeader = req.headers['authorization'];
     const adminPassword = process.env.ADMIN_PASSWORD || '123';
@@ -306,14 +357,40 @@ app.post('/api/admin/products', (req, res) => {
         return res.status(401).json({ success: false, message: 'تنبيه أمني: غير مصرح لك بتعديل المنتجات!' });
     }
     
-    const filePath = path.join(__dirname, '../config/products-admin.json');
-    
+    let connection;
     try {
-        fs.writeFileSync(filePath, JSON.stringify({ products }, null, 2));
+        connection = await dbPool.getConnection();
+        await connection.beginTransaction();
+        
+        // Truncate products table
+        await connection.query('TRUNCATE TABLE products');
+        
+        // Insert new products
+        if (products && products.length > 0) {
+            const insertQuery = `
+                INSERT INTO products (id, name, price, gamePassId, description, video, downloadUrl)
+                VALUES ?
+            `;
+            const values = products.map(p => [
+                p.id || null,
+                p.name,
+                p.price,
+                p.gamePassId,
+                p.description,
+                p.video || null,
+                p.downloadUrl
+            ]);
+            await connection.query(insertQuery, [values]);
+        }
+        
+        await connection.commit();
         res.json({ success: true, message: 'Products saved successfully' });
     } catch (error) {
+        if (connection) await connection.rollback();
         console.error('Error saving products:', error);
         res.status(500).json({ success: false, message: 'Failed to save products' });
+    } finally {
+        if (connection) connection.release();
     }
 });
 
@@ -517,21 +594,30 @@ app.get('/api/products/download', async (req, res) => {
     }
     
     const pid = parseInt(productId);
-    const users = readUsers();
-    const user = users.find(u => u.email === email.toLowerCase());
-    
-    if (!user || !user.purchasedProducts || !user.purchasedProducts.includes(pid)) {
-        return res.status(403).send('غير مصرح لك بتحميل هذا المنتج. تأكد من إتمام الشراء.');
-    }
     
     try {
-        const filePath = path.join(__dirname, '../config/products-admin.json');
-        const productsData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        const product = productsData.products.find(p => p.id === pid);
+        const [rows] = await dbPool.query('SELECT * FROM users WHERE LOWER(email) = ?', [email.toLowerCase()]);
+        if (rows.length === 0) {
+            return res.status(403).send('غير مصرح لك بتحميل هذا المنتج. تأكد من إتمام الشراء.');
+        }
         
-        if (!product || !product.downloadUrl) {
+        const user = rows[0];
+        let purchasedProducts = user.purchasedProducts;
+        if (typeof purchasedProducts === 'string') {
+            purchasedProducts = JSON.parse(purchasedProducts);
+        }
+        purchasedProducts = purchasedProducts || [];
+        
+        if (!purchasedProducts.includes(pid)) {
+            return res.status(403).send('غير مصرح لك بتحميل هذا المنتج. تأكد من إتمام الشراء.');
+        }
+        
+        const [pRows] = await dbPool.query('SELECT * FROM products WHERE id = ?', [pid]);
+        if (pRows.length === 0 || !pRows[0].downloadUrl) {
             return res.status(404).send('رابط التحميل غير متوفر لهذا المنتج.');
         }
+        
+        const product = pRows[0];
         
         // Double check ownership dynamically in Roblox before sending the redirect!
         const isRealOwner = await checkGamePassOwnership(user.robloxUser, product.gamePassId);
@@ -547,57 +633,15 @@ app.get('/api/products/download', async (req, res) => {
     }
 });
 
-// User Database API Routes (Persistent Storage)
-const USERS_FILE = path.join(__dirname, '../config/users.json');
-
-// Get all users helper
-function readUsers() {
-    try {
-        if (!fs.existsSync(USERS_FILE) || fs.readFileSync(USERS_FILE, 'utf8').trim().length === 0) {
-            fs.writeFileSync(USERS_FILE, JSON.stringify({ users: [] }, null, 2));
-            return [];
-        }
-        const data = fs.readFileSync(USERS_FILE, 'utf8');
-        const parsed = JSON.parse(data);
-        const users = parsed.users || [];
-        
-        // Transparently decrypt email and password on read
-        return users.map(user => {
-            return {
-                ...user,
-                email: decryptData(user.email),
-                password: decryptData(user.password)
-            };
-        });
-    } catch (e) {
-        console.error('Error reading users database, resetting file:', e.message);
-        fs.writeFileSync(USERS_FILE, JSON.stringify({ users: [] }, null, 2));
-        return [];
-    }
-}
-
-// Write users helper
-function writeUsers(users) {
-    try {
-        // Transparently encrypt email and password on write
-        const encryptedUsers = users.map(user => {
-            return {
-                ...user,
-                email: encryptData(user.email),
-                password: encryptData(user.password)
-            };
-        });
-        fs.writeFileSync(USERS_FILE, JSON.stringify({ users: encryptedUsers }, null, 2));
-        return true;
-    } catch (e) {
-        console.error('Error writing to users database:', e.message);
-        return false;
-    }
-}
-
 // Server Ping Health Check
-app.get('/api/ping', (req, res) => {
-    res.json({ success: true });
+app.get('/api/ping', async (req, res) => {
+    try {
+        await dbPool.query('SELECT 1');
+        res.json({ success: true, dbConnected: true });
+    } catch (err) {
+        console.error('Database connection check failed on ping:', err.message);
+        res.json({ success: true, dbConnected: false });
+    }
 });
 
 // Register request endpoint (Generates OTP and sends Email)
@@ -608,72 +652,77 @@ app.post('/api/users/register-request', async (req, res) => {
         return res.status(400).json({ success: false, message: 'All fields are required' });
     }
     
-    const users = readUsers();
-    
-    // Check if email already exists
-    if (users.some(u => u.email === email.toLowerCase())) {
-        return res.status(400).json({ success: false, message: 'البريد الإلكتروني مسجل بالفعل ⚠️' });
-    }
-    
-    // Check if Roblox username already exists in database
-    if (users.some(u => u.robloxUser.toLowerCase() === robloxUser.toLowerCase())) {
-        return res.status(400).json({ success: false, message: 'اسم حساب روبلوكس هذا مسجل بالفعل ومربوط بمستخدم آخر ⚠️' });
-    }
-    
-    // Generate 4-digit verification code
-    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
-    
-    // Store in pending registrations with 10-minute expiry
-    pendingRegistrations.set(email.toLowerCase(), {
-        robloxUser,
-        robloxId,
-        realName,
-        email: email.toLowerCase(),
-        password,
-        robloxAvatar,
-        code: otpCode,
-        expires: Date.now() + 10 * 60 * 1000
-    });
-    
-    // Log code to server console as fail-safe backup
-    console.log(`\n======================================================`);
-    console.log(`[RoSellers OTP Security] Code for ${email} is: ${otpCode}`);
-    console.log(`======================================================\n`);
-    
-    // Send OTP via Gmail
-    const mailOptions = {
-        from: `"RoSellers Security" <${process.env.GMAIL_USER || 'amr1tarek032@gmail.com'}>`,
-        to: email,
-        subject: `رمز تحقق حسابك في RoSellers - ${otpCode}`,
-        html: `
-        <div style="background-color: #030509; color: #e2e8f0; font-family: 'Cairo', sans-serif; padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); max-width: 500px; margin: 0 auto; direction: rtl; text-align: center;">
-            <h1 style="background: linear-gradient(135deg, #7c6fea, #a78bfa, #f472b6); -webkit-background-clip: text; color: #7c6fea; font-size: 32px; font-weight: 900; text-align: center; margin-bottom: 20px; font-family: 'Outfit', sans-serif;">RoSellers</h1>
-            <p style="font-size: 16px; line-height: 1.6; text-align: center; margin-bottom: 10px;">أهلاً بك <b>${realName}</b> في منصة RoSellers!</p>
-            <p style="font-size: 14px; text-align: center; color: #94a3b8; margin-bottom: 25px;">لتفعيل حسابك والمتابعة، يرجى استخدام رمز التحقق التالي:</p>
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin: 20px 0; text-align: center; font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #a78bfa; text-shadow: 0 0 12px rgba(167, 139, 250, 0.4); display: inline-block; min-width: 150px; text-align: center;">${otpCode}</div>
-            <p style="font-size: 12px; text-align: center; color: #64748b; margin-top: 30px;">هذا الرمز صالح لمدة 10 دقائق فقط. إذا لم تكن أنت من طلب هذا الرمز، يرجى تجاهل هذا البريد.</p>
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 25px 0;">
-            <p style="font-size: 10px; text-align: center; color: #475569;">بوابة الأمان والتحقق التلقائي لـ RoSellers</p>
-        </div>
-        `
-    };
-    
     try {
-        await transporter.sendMail(mailOptions);
-        res.json({ success: true, message: 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح! 📨' });
-    } catch (err) {
-        console.error('Error sending email, fallback log active:', err.message);
-        // Respond success anyway because OTP is logged in console and user can continue!
-        res.json({ 
-            success: true, 
-            message: 'تم إرسال الرمز (سجل لوحة التحكم نشط). 📨',
-            fallbackActive: true 
+        // Check if email already exists
+        const [emailExists] = await dbPool.query('SELECT 1 FROM users WHERE LOWER(email) = ?', [email.toLowerCase()]);
+        if (emailExists.length > 0) {
+            return res.status(400).json({ success: false, message: 'البريد الإلكتروني مسجل بالفعل ⚠️' });
+        }
+        
+        // Check if Roblox username already exists in database
+        const [robloxExists] = await dbPool.query('SELECT 1 FROM users WHERE LOWER(robloxUser) = ?', [robloxUser.toLowerCase()]);
+        if (robloxExists.length > 0) {
+            return res.status(400).json({ success: false, message: 'اسم حساب روبلوكس هذا مسجل بالفعل ومربوط بمستخدم آخر ⚠️' });
+        }
+        
+        // Generate 4-digit verification code
+        const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+        
+        // Store in pending registrations with 10-minute expiry
+        pendingRegistrations.set(email.toLowerCase(), {
+            robloxUser,
+            robloxId,
+            realName,
+            email: email.toLowerCase(),
+            password,
+            robloxAvatar,
+            code: otpCode,
+            expires: Date.now() + 10 * 60 * 1000
         });
+        
+        // Log code to server console as fail-safe backup
+        console.log(`\n======================================================`);
+        console.log(`[RoSellers OTP Security] Code for ${email} is: ${otpCode}`);
+        console.log(`======================================================\n`);
+        
+        // Send OTP via Gmail
+        const mailOptions = {
+            from: `"RoSellers Security" <${process.env.GMAIL_USER || 'amr1tarek032@gmail.com'}>`,
+            to: email,
+            subject: `رمز تحقق حسابك في RoSellers - ${otpCode}`,
+            html: `
+            <div style="background-color: #030509; color: #e2e8f0; font-family: 'Cairo', sans-serif; padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); max-width: 500px; margin: 0 auto; direction: rtl; text-align: center;">
+                <h1 style="background: linear-gradient(135deg, #7c6fea, #a78bfa, #f472b6); -webkit-background-clip: text; color: #7c6fea; font-size: 32px; font-weight: 900; text-align: center; margin-bottom: 20px; font-family: 'Outfit', sans-serif;">RoSellers</h1>
+                <p style="font-size: 16px; line-height: 1.6; text-align: center; margin-bottom: 10px;">أهلاً بك <b>${realName}</b> في منصة RoSellers!</p>
+                <p style="font-size: 14px; text-align: center; color: #94a3b8; margin-bottom: 25px;">لتفعيل حسابك والمتابعة، يرجى استخدام رمز التحقق التالي:</p>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin: 20px 0; text-align: center; font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #a78bfa; text-shadow: 0 0 12px rgba(167, 139, 250, 0.4); display: inline-block; min-width: 150px; text-align: center;">${otpCode}</div>
+                <p style="font-size: 12px; text-align: center; color: #64748b; margin-top: 30px;">هذا الرمز صالح لمدة 10 دقائق فقط. إذا لم تكن أنت من طلب هذا الرمز، يرجى تجاهل هذا البريد.</p>
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 25px 0;">
+                <p style="font-size: 10px; text-align: center; color: #475569;">بوابة الأمان والتحقق التلقائي لـ RoSellers</p>
+            </div>
+            `
+        };
+        
+        try {
+            await transporter.sendMail(mailOptions);
+            res.json({ success: true, message: 'تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح! 📨' });
+        } catch (err) {
+            console.error('Error sending email, fallback log active:', err.message);
+            // Respond success anyway because OTP is logged in console and user can continue!
+            res.json({ 
+                success: true, 
+                message: 'تم إرسال الرمز (سجل لوحة التحكم نشط). 📨',
+                fallbackActive: true 
+            });
+        }
+    } catch (err) {
+        console.error('Register request error:', err.message);
+        res.status(500).json({ success: false, message: 'خطأ داخلي في الخادم' });
     }
 });
 
 // Register verify endpoint (Verifies OTP and saves user to DB)
-app.post('/api/users/register-verify', (req, res) => {
+app.post('/api/users/register-verify', async (req, res) => {
     const { email, code, robloxUser, robloxId, realName, password, robloxAvatar } = req.body;
     
     if (!email || !code) {
@@ -696,27 +745,38 @@ app.post('/api/users/register-verify', (req, res) => {
         return res.status(400).json({ success: false, message: 'رمز التحقق غير صحيح ❌' });
     }
     
-    // Code is correct! Proceed to register user in permanent database
-    const users = readUsers();
-    
-    // Build proxy avatar URL
-    const avatarUrl = robloxId 
-        ? `/api/roblox/avatar-proxy?userId=${robloxId}`
-        : (robloxAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${robloxUser}`);
+    try {
+        // Build proxy avatar URL
+        const avatarUrl = robloxId 
+            ? `/api/roblox/avatar-proxy?userId=${robloxId}`
+            : (robloxAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${robloxUser}`);
+            
+        const [result] = await dbPool.query(
+            `INSERT INTO users (robloxUser, robloxId, realName, email, password, robloxAvatar, purchasedProducts, purchases)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                robloxUser,
+                robloxId || null,
+                realName,
+                email.toLowerCase(),
+                hashPassword(password),
+                avatarUrl,
+                JSON.stringify([]),
+                JSON.stringify([])
+            ]
+        );
         
-    const newUser = {
-        id: users.length > 0 ? Math.max(...users.map(u => u.id || 0)) + 1 : 1,
-        robloxUser,
-        robloxId: robloxId || null,
-        realName,
-        email: email.toLowerCase(),
-        password: hashPassword(password),
-        robloxAvatar: avatarUrl,
-        purchasedProducts: []
-    };
-    
-    users.push(newUser);
-    if (writeUsers(users)) {
+        const newUser = {
+            id: result.insertId,
+            robloxUser,
+            robloxId: robloxId || null,
+            realName,
+            email: email.toLowerCase(),
+            password: hashPassword(password),
+            robloxAvatar: avatarUrl,
+            purchasedProducts: []
+        };
+        
         // Clear pending registration
         pendingRegistrations.delete(email.toLowerCase());
         
@@ -734,92 +794,112 @@ app.post('/api/users/register-verify', (req, res) => {
         });
         
         res.json({ success: true, user: newUser });
-    } else {
+    } catch (err) {
+        console.error('Register verify error:', err.message);
         res.status(500).json({ success: false, message: 'فشل حفظ الحساب في قاعدة البيانات.' });
     }
 });
 
 // Login user endpoint
-app.post('/api/users/login', (req, res) => {
+app.post('/api/users/login', async (req, res) => {
     const { email, password } = req.body;
     
     if (!email || !password) {
         return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
     
-    const users = readUsers();
-    const hashedPassword = hashPassword(password);
-    const userIndex = users.findIndex(u => u.email === email.toLowerCase());
-    
-    if (userIndex === -1) {
-        return res.status(400).json({ success: false, message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
+    try {
+        const [rows] = await dbPool.query('SELECT * FROM users WHERE LOWER(email) = ?', [email.toLowerCase()]);
+        if (rows.length === 0) {
+            return res.status(400).json({ success: false, message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
+        }
+        
+        const user = rows[0];
+        const hashedPassword = hashPassword(password);
+        
+        // Support plain text fallback (for legacy accounts) and hash validation
+        const isValid = user.password === password || user.password === hashedPassword;
+        
+        if (!isValid) {
+            return res.status(400).json({ success: false, message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
+        }
+        
+        // Auto-upgrade plain text password to secure hash in DB
+        if (user.password === password) {
+            await dbPool.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, user.id]);
+            user.password = hashedPassword;
+        }
+        
+        // Ensure purchasedProducts and purchases are returned parsed as array/object
+        if (typeof user.purchasedProducts === 'string') {
+            user.purchasedProducts = JSON.parse(user.purchasedProducts);
+        }
+        user.purchasedProducts = user.purchasedProducts || [];
+        
+        if (typeof user.purchases === 'string') {
+            user.purchases = JSON.parse(user.purchases);
+        }
+        user.purchases = user.purchases || [];
+        
+        res.json({ success: true, user });
+    } catch (err) {
+        console.error('Login error:', err.message);
+        res.status(500).json({ success: false, message: 'خطأ داخلي في الخادم' });
     }
-    
-    const user = users[userIndex];
-    
-    // Support plain text fallback (for legacy accounts) and hash validation
-    const isValid = user.password === password || user.password === hashedPassword;
-    
-    if (!isValid) {
-        return res.status(400).json({ success: false, message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
-    }
-    
-    // Auto-upgrade plain text password to secure hash in DB
-    if (user.password === password) {
-        user.password = hashedPassword;
-        users[userIndex] = user;
-        writeUsers(users);
-    }
-    
-    res.json({ success: true, user });
 });
 
 // Sync purchased products list to persistent DB
-app.post('/api/users/sync-purchases', (req, res) => {
+app.post('/api/users/sync-purchases', async (req, res) => {
     const { email, productId } = req.body;
     if (!email || !productId) {
         return res.status(400).json({ success: false, message: 'Missing parameters' });
     }
     
-    const users = readUsers();
-    const userIndex = users.findIndex(u => u.email === email.toLowerCase());
-    
-    if (userIndex !== -1) {
-        if (!users[userIndex].purchasedProducts) {
-            users[userIndex].purchasedProducts = [];
-        }
-        if (!users[userIndex].purchasedProducts.includes(productId)) {
-            users[userIndex].purchasedProducts.push(productId);
+    try {
+        const [rows] = await dbPool.query('SELECT * FROM users WHERE LOWER(email) = ?', [email.toLowerCase()]);
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
         
-        // Also save detailed purchase receipt
-        if (!users[userIndex].purchases) {
-            users[userIndex].purchases = [];
+        const user = rows[0];
+        let purchasedProducts = user.purchasedProducts;
+        if (typeof purchasedProducts === 'string') {
+            purchasedProducts = JSON.parse(purchasedProducts);
+        }
+        purchasedProducts = purchasedProducts || [];
+        
+        if (!purchasedProducts.includes(productId)) {
+            purchasedProducts.push(productId);
         }
         
-        const alreadyHasDetails = users[userIndex].purchases.some(p => p.productId === productId);
+        let purchases = user.purchases;
+        if (typeof purchases === 'string') {
+            purchases = JSON.parse(purchases);
+        }
+        purchases = purchases || [];
+        
+        const alreadyHasDetails = purchases.some(p => p.productId === productId);
         if (!alreadyHasDetails) {
-            // Find product name and details
+            // Find product name and details from products table
             let price = 0;
             let productName = "نظام روبلوكس";
             try {
-                const productsData = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/products-admin.json'), 'utf8'));
-                const matchedProduct = productsData.products.find(p => p.id === productId);
-                if (matchedProduct) {
-                    price = matchedProduct.price;
-                    productName = matchedProduct.name;
+                const [pRows] = await dbPool.query('SELECT name, price FROM products WHERE id = ?', [productId]);
+                if (pRows.length > 0) {
+                    price = pRows[0].price;
+                    productName = pRows[0].name;
                 }
             } catch (err) {
-                console.error('Error finding product details for invoice:', err);
+                console.error('Error finding product details for invoice from DB:', err);
             }
             
             const invoiceNumber = 'ROS-' + Math.floor(100000 + Math.random() * 900000);
             
-            users[userIndex].purchases.push({
+            purchases.push({
                 productId,
                 invoiceNumber,
                 purchaseDate: new Date().toISOString(),
-                robloxUser: users[userIndex].robloxUser,
+                robloxUser: user.robloxUser,
                 price: price
             });
             
@@ -831,17 +911,25 @@ app.post('/api/users/sync-purchases', (req, res) => {
                     { name: "المنتج المشترى", value: productName, inline: true },
                     { name: "المبلغ المدفوع", value: `${price} R$`, inline: true },
                     { name: "رقم الفاتورة", value: invoiceNumber, inline: true },
-                    { name: "حساب روبلوكس المرخص", value: `[@${users[userIndex].robloxUser}](https://www.roblox.com/users/profile?username=${encodeURIComponent(users[userIndex].robloxUser)})` }
+                    { name: "حساب روبلوكس المرخص", value: `[@${user.robloxUser}](https://www.roblox.com/users/profile?username=${encodeURIComponent(user.robloxUser)})` }
                 ],
                 footer: { text: "بوابة فحص الفواتير الآمنة لـ RoSellers" },
                 timestamp: new Date().toISOString()
             });
         }
         
-        writeUsers(users);
-        res.json({ success: true, user: users[userIndex] });
-    } else {
-        res.status(404).json({ success: false, message: 'User not found' });
+        await dbPool.query(
+            'UPDATE users SET purchasedProducts = ?, purchases = ? WHERE id = ?',
+            [JSON.stringify(purchasedProducts), JSON.stringify(purchases), user.id]
+        );
+        
+        user.purchasedProducts = purchasedProducts;
+        user.purchases = purchases;
+        
+        res.json({ success: true, user });
+    } catch (err) {
+        console.error('Sync purchases error:', err.message);
+        res.status(500).json({ success: false, message: 'خطأ داخلي في الخادم' });
     }
 });
 
@@ -852,93 +940,106 @@ app.get('/api/users/sync-session', async (req, res) => {
         return res.status(400).json({ success: false, message: 'Email is required' });
     }
     
-    const users = readUsers();
-    const userIndex = users.findIndex(u => u.email === email.toLowerCase());
-    
-    if (userIndex === -1) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-    }
-    
-    const user = users[userIndex];
-    let dbChanged = false;
-    
-    // Auto-resolve avatar for legacy accounts lacking a robloxAvatar field
-    if (!user.robloxAvatar) {
-        try {
-            const robloxRes = await fetch("https://users.roblox.com/v1/usernames/users", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-                },
-                body: JSON.stringify({ usernames: [user.robloxUser], excludeBannedUsers: false })
-            });
-            if (robloxRes.ok) {
-                const robloxData = await robloxRes.json();
-                if (robloxData.data && robloxData.data.length > 0) {
-                    const rUser = robloxData.data[0];
-                    // Store proxy URL so browser doesn't hit CORS from tr.rbxcdn.com
-                    user.robloxAvatar = `/api/roblox/avatar-proxy?userId=${rUser.id}`;
-                    dbChanged = true;
-                }
-            }
-        } catch (err) {
-            console.error('Error auto-resolving legacy user roblox avatar:', err);
-        }
-    }
-    
-    // Load products-admin to check gamePassId
-    let products = [];
     try {
-        const filePath = path.join(__dirname, '../config/products-admin.json');
-        if (fs.existsSync(filePath)) {
-            const productsData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-            products = productsData.products || [];
+        const [rows] = await dbPool.query('SELECT * FROM users WHERE LOWER(email) = ?', [email.toLowerCase()]);
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
-    } catch (err) {
-        console.error('Error loading products-admin for session validation:', err);
-    }
-    
-    if (user.purchasedProducts && user.purchasedProducts.length > 0) {
-        const validatedProducts = [];
-        const validatedPurchases = [];
-        let ownershipChanged = false;
         
-        for (const productId of user.purchasedProducts) {
-            const product = products.find(p => p.id === productId);
-            if (product) {
-                // Verify ownership live in Roblox!
-                const isRealOwner = await checkGamePassOwnership(user.robloxUser, product.gamePassId);
-                if (isRealOwner) {
-                    validatedProducts.push(productId);
-                    if (user.purchases) {
-                        const receipt = user.purchases.find(p => p.productId === productId);
-                        if (receipt) validatedPurchases.push(receipt);
+        const user = rows[0];
+        let dbChanged = false;
+        
+        // Parse JSON fields
+        if (typeof user.purchasedProducts === 'string') {
+            user.purchasedProducts = JSON.parse(user.purchasedProducts);
+        }
+        user.purchasedProducts = user.purchasedProducts || [];
+        
+        if (typeof user.purchases === 'string') {
+            user.purchases = JSON.parse(user.purchases);
+        }
+        user.purchases = user.purchases || [];
+        
+        // Auto-resolve avatar for legacy accounts lacking a robloxAvatar field
+        if (!user.robloxAvatar) {
+            try {
+                const robloxRes = await fetch("https://users.roblox.com/v1/usernames/users", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                    },
+                    body: JSON.stringify({ usernames: [user.robloxUser], excludeBannedUsers: false })
+                });
+                if (robloxRes.ok) {
+                    const robloxData = await robloxRes.json();
+                    if (robloxData.data && robloxData.data.length > 0) {
+                        const rUser = robloxData.data[0];
+                        // Store proxy URL so browser doesn't hit CORS from tr.rbxcdn.com
+                        user.robloxAvatar = `/api/roblox/avatar-proxy?userId=${rUser.id}`;
+                        dbChanged = true;
+                    }
+                }
+            } catch (err) {
+                console.error('Error auto-resolving legacy user roblox avatar:', err);
+            }
+        }
+        
+        // Load products from DB to check gamePassId
+        let products = [];
+        try {
+            const [pRows] = await dbPool.query('SELECT * FROM products');
+            products = pRows || [];
+        } catch (err) {
+            console.error('Error loading products for session validation:', err);
+        }
+        
+        if (user.purchasedProducts && user.purchasedProducts.length > 0) {
+            const validatedProducts = [];
+            const validatedPurchases = [];
+            let ownershipChanged = false;
+            
+            for (const productId of user.purchasedProducts) {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    // Verify ownership live in Roblox!
+                    const isRealOwner = await checkGamePassOwnership(user.robloxUser, product.gamePassId);
+                    if (isRealOwner) {
+                        validatedProducts.push(productId);
+                        if (user.purchases) {
+                            const receipt = user.purchases.find(p => p.productId === productId);
+                            if (receipt) validatedPurchases.push(receipt);
+                        }
+                    } else {
+                        ownershipChanged = true;
+                        console.log(`User ${user.email} lost or lacks Roblox ownership of product ${productId}. Removing.`);
                     }
                 } else {
+                    // Product no longer exists in database, remove it!
                     ownershipChanged = true;
-                    console.log(`User ${user.email} lost or lacks Roblox ownership of product ${productId}. Removing.`);
+                    console.log(`Product ${productId} not found in database. Removing from purchased list.`);
                 }
-            } else {
-                // Product no longer exists in products-admin.json database, remove it!
-                ownershipChanged = true;
-                console.log(`Product ${productId} not found in database. Removing from purchased list.`);
+            }
+            
+            if (ownershipChanged) {
+                user.purchasedProducts = validatedProducts;
+                user.purchases = validatedPurchases;
+                dbChanged = true;
             }
         }
         
-        if (ownershipChanged) {
-            user.purchasedProducts = validatedProducts;
-            user.purchases = validatedPurchases;
-            dbChanged = true;
+        if (dbChanged) {
+            await dbPool.query(
+                'UPDATE users SET robloxAvatar = ?, purchasedProducts = ?, purchases = ? WHERE id = ?',
+                [user.robloxAvatar, JSON.stringify(user.purchasedProducts), JSON.stringify(user.purchases), user.id]
+            );
         }
+        
+        res.json({ success: true, user });
+    } catch (err) {
+        console.error('Sync session error:', err.message);
+        res.status(500).json({ success: false, message: 'خطأ داخلي في الخادم' });
     }
-    
-    if (dbChanged) {
-        users[userIndex] = user;
-        writeUsers(users);
-    }
-    
-    res.json({ success: true, user });
 });
 
 // Promocode Database File Path
@@ -1011,7 +1112,8 @@ app.get('*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+    await initDatabase();
     console.log(`Server is running on port ${PORT}`);
     console.log(`Frontend: http://localhost:${PORT}`);
     console.log(`Admin Panel: http://localhost:${PORT}/admin.html`);
