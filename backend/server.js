@@ -94,7 +94,8 @@ function rateLimiter(req, res, next) {
     timestamps = timestamps.filter(t => now - t < LIMIT_WINDOW);
     
     if (timestamps.length >= MAX_REQUESTS) {
-        return res.status(429).send('⚠️ تنبيه حماية: تم اكتشاف طلبات مفرطة من هذا العنوان! الرجاء المحاولة بعد دقيقة.');
+        req.socket.destroy();
+        return;
     }
     
     timestamps.push(now);
